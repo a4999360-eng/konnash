@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>جدول تفاعلي متطور</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    padding: 16px;
+    padding-bottom: calc(16px + env(safe-area-inset-bottom));
+    background: #f0f2f5;
+    min-height: 100vh;
+    direction: rtl;
+  }
+
+  h2 {
+    text-align: center;
+    margin-bottom: 18px;
+    font-size: 20px;
+    color: #222;
+  }
+
+  /* ===== Forms ===== */
+  #addForm, #searchForm {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  #addForm {
+    background: #fff;
+    padding: 14px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+
+  .input-row {
+    display: flex;
+    gap: 10px;
+  }
+
+  .input-row input {
+    flex: 1;
+  }
+
+  input[type="text"],
+  input[type="number"] {
+    padding: 12px 14px;
+    border-radius: 8px;
+    border: 1.5px solid #ddd;
+    font-size: 16px; /* prevents iOS zoom on focus */
+    font-family: inherit;
+    width: 100%;
+    background: #fafafa;
+    transition: border-color 0.2s;
+    -webkit-appearance: none;
+  }
+
+  input:focus {
+    outline: none;
+    border-color: #007bff;
+    background: #fff;
+  }
+
+  /* ===== Buttons ===== */
+  .btn {
+    padding: 13px 20px;
+    border: none;
+    background: #007bff;
+    color: #fff;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.2s;
+    font-weight: bold;
+    font-size: 15px;
+    font-family: inherit;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+
+  .btn:active {
+    transform: scale(0.97);
+    opacity: 0.85;
+  }
+
+  .btn-add  { background: #28a745; }
+  .btn-del  { background: #dc3545; width: auto; padding: 9px 16px; font-size: 14px; border-radius: 6px; }
+
+  /* ===== Search ===== */
+  #searchForm input {
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+
+  /* ===== Table as Cards on Mobile ===== */
+  .table-wrapper {
+    width: 100%;
+  }
+
+  /* Hide classic table on mobile, show cards */
+  table {
+    display: none;
+  }
+
+  /* Card list */
+  #cardList {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .data-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 14px 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: transform 0.15s, box-shadow 0.15s;
+    animation: slideIn 0.25s ease;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .data-card:active {
+    transform: scale(0.99);
+  }
+
+  .card-info { display: flex; flex-direction: column; gap: 4px; }
+  .card-name { font-size: 17px; font-weight: 700; color: #111; }
+  .card-age  { font-size: 14px; color: #666; }
+
+  /* ===== Empty State ===== */
+  #empty {
+    display: none;
+    text-align: center;
+    margin-top: 40px;
+    font-size: 18px;
+    color: #aaa;
+    padding: 20px;
+  }
+  #empty span { display: block; font-size: 48px; margin-bottom: 10px; }
+
+  /* ===== Toast ===== */
+  #toast {
+    visibility: hidden;
+    min-width: 200px;
+    max-width: 80vw;
+    background-color: #28a745;
+    color: white;
+    text-align: center;
+    border-radius: 10px;
+    padding: 13px 20px;
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-10px);
+    z-index: 999;
+    opacity: 0;
+    font-size: 15px;
+    font-weight: bold;
+    transition: opacity 0.3s, transform 0.3s;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  }
+
+  #toast.show {
+    visibility: visible;
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* ===== Desktop: show real table, hide cards ===== */
+  @media (min-width: 600px) {
+    body { padding: 30px; max-width: 800px; margin: 0 auto; }
+    h2 { font-size: 24px; }
+
+    #addForm { flex-direction: row; flex-wrap: wrap; align-items: flex-end; }
+    #addForm input { width: 180px; }
+    .input-row { flex: 1; gap: 10px; }
+    .btn { width: auto; }
+    .btn-add { width: auto; flex: 0 0 auto; }
+
+    #cardList { display: none; }
+
+    table {
+      display: table;
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    th, td {
+      padding: 13px 16px;
+      text-align: center;
+      border-bottom: 1px solid #eee;
+      font-size: 15px;
+    }
+
+    th { background: #222; color: #fff; }
+
+    tbody tr { transition: background 0.2s; }
+    tbody tr:hover { background: #e8f4fd; }
+    tbody tr:last-child td { border-bottom: none; }
+
+    td button { width: auto; padding: 7px 16px; font-size: 13px; border-radius: 6px; }
+  }
+</style>
+</head>
+<body>
+
+<h2>📋 جدول بيانات تفاعلي</h2>
+
+<div id="addForm">
+  <div class="input-row">
+    <input type="text"   id="nameInput" placeholder="الاسم">
+    <input type="number" id="ageInput"  placeholder="العمر">
+  </div>
+  <button class="btn btn-add" id="addBtn">➕ إضافة صف جديد</button>
+</div>
+
+<div id="searchForm">
+  <input type="text" id="searchInput" placeholder="🔍 بحث باسم أو عمر...">
+</div>
+
+<div class="table-wrapper">
+  <!-- Mobile: card list -->
+  <div id="cardList"></div>
+
+  <!-- Desktop: classic table -->
+  <table id="dataTable">
+    <thead>
+      <tr><th>الاسم</th><th>العمر</th><th>الإجراء</th></tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+  </table>
+</div>
+
+<div id="empty"><span>📭</span>لا توجد بيانات لعرضها</div>
+<div id="toast"></div>
+
+<script>
+  const cardList   = document.getElementById('cardList');
+  const tableBody  = document.getElementById('tableBody');
+  const emptyState = document.getElementById('empty');
+  const toast      = document.getElementById('toast');
+  const addBtn     = document.getElementById('addBtn');
+  const nameInput  = document.getElementById('nameInput');
+  const ageInput   = document.getElementById('ageInput');
+  const searchInput= document.getElementById('searchInput');
+
+  // Shared data array
+  let rows = [
+    { id: 1, name: 'أدهم', age: 17 },
+    { id: 2, name: 'سارة', age: 16 },
+  ];
+  let nextId = 3;
+
+  // ===== Toast =====
+  let toastTimer;
+  function showToast(msg, color = '#28a745') {
+    toast.textContent = msg;
+    toast.style.backgroundColor = color;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
+  }
+
+  // ===== Render =====
+  function render(filter = '') {
+    const term = filter.toLowerCase();
+    const filtered = rows.filter(r =>
+      r.name.toLowerCase().includes(term) || String(r.age).includes(term)
+    );
+
+    // --- Cards (mobile) ---
+    cardList.innerHTML = '';
+    filtered.forEach(r => {
+      const card = document.createElement('div');
+      card.className = 'data-card';
+      card.innerHTML = `
+        <div class="card-info">
+          <span class="card-name">${r.name}</span>
+          <span class="card-age">العمر: ${r.age}</span>
+        </div>
+        <button class="btn btn-del" data-id="${r.id}">🗑 حذف</button>
+      `;
+      cardList.appendChild(card);
+    });
+
+    // --- Table rows (desktop) ---
+    tableBody.innerHTML = '';
+    filtered.forEach(r => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${r.name}</td>
+        <td>${r.age}</td>
+        <td><button class="btn btn-del" data-id="${r.id}">🗑 حذف</button></td>
+      `;
+      tableBody.appendChild(tr);
+    });
+
+    // Empty state
+    emptyState.style.display = filtered.length === 0 ? 'block' : 'none';
+  }
+
+  // ===== Delete (delegated) =====
+  document.addEventListener('click', e => {
+    if (e.target.closest('[data-id]')) {
+      const id = Number(e.target.closest('[data-id]').dataset.id);
+      if (confirm('هل أنت متأكد من الحذف؟')) {
+        rows = rows.filter(r => r.id !== id);
+        render(searchInput.value);
+        showToast('تم الحذف بنجاح! 🗑', '#dc3545');
+      }
+    }
+  });
+
+  // ===== Add =====
+  addBtn.addEventListener('click', () => {
+    const name = nameInput.value.trim();
+    const age  = ageInput.value.trim();
+    if (name && age) {
+      rows.unshift({ id: nextId++, name, age: Number(age) });
+      nameInput.value = '';
+      ageInput.value  = '';
+      render(searchInput.value);
+      showToast('تمت الإضافة بنجاح! ✅');
+    } else {
+      showToast('الرجاء إدخال الاسم والعمر!', '#e67e22');
+    }
+  });
+
+  // Enter key on inputs
+  [nameInput, ageInput].forEach(inp =>
+    inp.addEventListener('keydown', e => { if (e.key === 'Enter') addBtn.click(); })
+  );
+
+  // ===== Search =====
+  searchInput.addEventListener('input', () => render(searchInput.value));
+
+  // Init
+  render();
+</script>
+</body>
+</html>
