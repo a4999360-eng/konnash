@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Debt Manager | إدارة الديون</title>
 
 <!-- Google Fonts -->
@@ -285,13 +285,52 @@
         div.padding-container { padding: 0 10px !important; }
         .form-control[placeholder="بحث عن اسم في القائمة الحالية..."] { font-size: 13px; }
         
-        .table-container { overflow-x: auto; border-radius: 12px; border: none; }
-        table { min-width: 600px; }
-        th, td { padding: 12px 10px; font-size: 13px; }
-        .user-cell { gap: 8px; }
-        .avatar { width: 32px; height: 32px; font-size: 14px; }
-        .amount { font-size: 14px; }
-        .action-btn { width: 30px; height: 30px; font-size: 14px; }
+        /* Mobile Table as Cards */
+        .table-container { overflow: visible; border: none; background: transparent; box-shadow: none; }
+        table, thead, tbody, th, td, tr { display: block; width: 100%; }
+        table { min-width: 100%; }
+        thead { display: none; } /* Hide headers */
+        tbody tr { 
+            background: rgba(26, 26, 30, 0.9);
+            border: 1px solid var(--border-color);
+            border-radius: 16px; 
+            margin-bottom: 20px; 
+            padding: 15px; 
+            backdrop-filter: var(--glass-blur);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        tbody tr:hover { transform: none; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        
+        td { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 12px 5px !important;
+            border-bottom: 1px dashed rgba(255,255,255,0.08); /* Better separation */
+            font-size: 14px !important;
+            text-align: left;
+        }
+        td:last-child { border-bottom: none; padding-bottom: 0 !important; margin-top: 10px; }
+        
+        td::before {
+            content: attr(data-label);
+            font-weight: 700;
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+        
+        .user-cell { display: flex; align-items: center; justify-content: flex-start; gap: 12px; width: 100%; }
+        td:first-child::before { display: none; }
+        td:first-child { 
+            padding-top: 5px !important; 
+            padding-bottom: 15px !important; 
+            border-bottom: 1px solid rgba(255, 215, 0, 0.15); 
+            margin-bottom: 5px;
+        }
+        .avatar { width: 42px; height: 42px; font-size: 16px; }
+        .amount { font-size: 16px; font-weight: 800; color: var(--text-primary); }
+        .action-btn { width: 40px; height: 40px; font-size: 16px; flex: 1; max-width: 80px; border: 1px solid rgba(255,255,255,0.05); background: rgba(0,0,0,0.2); }
+        .actions { width: 100%; gap: 12px; justify-content: center; }
         
         .modal { width: 95%; padding: 20px; border-radius: 16px; margin: 10px; max-height: 85vh; }
         .modal-header h3 { font-size: 18px; }
@@ -640,8 +679,7 @@
                      data-theme="filled_black"
                      data-text="signin_with"
                      data-shape="rectangular"
-                     data-logo_alignment="left"
-                     data-width="400">
+                     data-logo_alignment="left">
                 </div>
             </div>
         </div>
@@ -830,17 +868,17 @@
 
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td>
+                <td data-label="الاسم">
                     <div class="user-cell">
                         <div class="avatar">${initial}</div>
                         <div style="font-weight: 700;">${debt.name}</div>
                     </div>
                 </td>
-                <td class="amount">${parseFloat(debt.amount).toLocaleString()} <span style="font-size:12px;color:var(--text-secondary)">جنيه</span></td>
-                <td style="font-family: 'Outfit'; font-size: 14px; color: var(--text-secondary);">${debt.date ? debt.date.split('-').reverse().join('/') : '---'}</td>
-                <td style="font-size: 14px; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${debt.notes || '---'}</td>
-                <td><span class="badge ${badgeClass}">${badgeText}</span></td>
-                <td>
+                <td data-label="المبلغ" class="amount">${parseFloat(debt.amount).toLocaleString()} <span style="font-size:12px;color:var(--text-secondary)">جنيه</span></td>
+                <td data-label="آخر تعديل" style="font-family: 'Outfit'; font-size: 14px; color: var(--text-secondary);">${debt.date ? debt.date.split('-').reverse().join('/') : '---'}</td>
+                <td data-label="الملاحظات" style="font-size: 14px; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${debt.notes || '---'}</td>
+                <td data-label="الحالة"><span class="badge ${badgeClass}">${badgeText}</span></td>
+                <td data-label="إجراءات">
                     <div class="actions">
                         <button class="action-btn whatsapp" onclick="openWhatsApp('${debt.phone}')"><i class="fab fa-whatsapp"></i></button>
                         <button class="action-btn edit" onclick="openEdit(${debt.id})"><i class="fas fa-pen"></i></button>
