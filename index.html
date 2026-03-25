@@ -3,16 +3,19 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Debt Manager | إدارة الديون</title>
-
-<!-- Google Fonts -->
+<title>Debt Manager | إدارة الديون</title><!-- Performance & Speed Optimizations -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdnjs.cloudflare.com">
+<link rel="dns-prefetch" href="https://fonts.googleapis.com">
+<link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+
+<!-- Google Fonts with Swap -->
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
 <!-- FontAwesome -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'">
 <!-- html2pdf -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" defer></script>
 <!-- Google Identity Services -->
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 
@@ -395,6 +398,20 @@
         color: var(--accent-primary);
         opacity: 0.5;
     }
+
+    /* Contact Picker Hover */
+    #pickContactBtn:hover {
+        background: var(--accent-primary) !important;
+        color: var(--bg-main) !important;
+    }
+
+    /* Performance Hints */
+    .ambient-glow { will-change: transform; transition: opacity 0.5s; }
+    .hero { will-change: transform, opacity; }
+    .table-container { contain: content; }
+
+    @keyframes float { 0% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(50px, 50px, 0); } }
+    @keyframes float-reverse { 0% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(-50px, -50px, 0); } }
 </style>
 </head>
 
@@ -405,7 +422,7 @@
 
 <header>
     <div class="logo">
-        <img src="image.png" alt="A.D Logo">
+        <img src="image.png" alt="A.D Logo" decoding="async">
         <span class="logo-text">DebtManager</span>
     </div>
     <div style="display: flex; gap: 10px;">
@@ -522,7 +539,12 @@
                 </div>
             </div>
             <div class="form-group">
-                <label>الاسم الكامل</label>
+                <label style="display: flex; justify-content: space-between; align-items: center;">
+                    الاسم الكامل
+                    <button id="pickContactBtn" onclick="selectContact()" style="background: rgba(255,215,0,0.1); border: 1px solid var(--accent-primary); color: var(--accent-primary); cursor: pointer; font-size: 11px; padding: 4px 10px; border-radius: 8px; font-weight: bold; display: flex; align-items: center; gap: 4px; transition: 0.3s;">
+                        <i class="fas fa-address-book"></i> اختيار من الجهاز
+                    </button>
+                </label>
                 <input type="text" id="addName" placeholder="أدخل اسم الشخص أو المصنع" class="form-control">
             </div>
             <div class="form-group">
@@ -686,15 +708,127 @@
     </div>
 </div>
 
-<!-- Hidden PDF Receipt -->
-<div id="receipt-container">
-    <div id="receipt" style="padding: 40px; background: #fff; color: #000; direction: rtl; font-family: 'Tajawal', sans-serif; width: 600px; border: 2px solid #000; display: none;">
-        <h1 style="text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 30px;">إيصال دين - DebtManager</h1>
-        <p><strong>التاريخ: </strong> <span id="r-date"></span></p>
-        <p><strong>الاسم: </strong> <span id="r-name"></span></p>
-        <p><strong><span id="r-action-title">الرصيد: </span></strong> <span id="r-amount" style="font-size: 24px; font-weight: bold;"></span> جنيه</p>
-        <p><strong>الملاحظات: </strong> <span id="r-notes"></span></p>
-        <div style="margin-top: 50px; text-align: center; font-size: 13px; color: #555; border-top: 1px dashed #aaa; padding-top: 15px;">تم إنشاء هذا الإيصال إلكترونياً بواسطة نظام DebtManager.</div>
+<!-- Hidden PDF Receipt Template - Ultra Professional Version -->
+<div id="receipt-container" style="position: absolute; left: -9999px; top: -9999px;">
+    <div id="receipt" style="padding: 0; background: #fff; color: #1a1a1a; direction: rtl; font-family: 'Tajawal', 'Segoe UI', Arial, sans-serif; width: 800px; border: 1px solid #ddd; line-height: 1.6; text-rendering: optimizeLegibility;">
+        
+        <!-- Top Accent Bar -->
+        <div style="height: 12px; background: linear-gradient(90deg, #ccac00, #ffeb3b, #ccac00);"></div>
+
+        <div style="padding: 40px;">
+            <!-- Header Section -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; border-bottom: 1px solid #eee; padding-bottom: 30px;">
+                <div style="text-align: right;">
+                    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px;">
+                        <span style="background: #000; color: #ccac00; padding: 10px 15px; border-radius: 8px; font-weight: 900; font-size: 24px;">DM</span>
+                        <div>
+                            <h1 style="margin: 0; font-size: 28px; font-weight: 900; color: #000; letter-spacing: 1px;">DebtManager</h1>
+                            <p style="margin: 0; font-size: 14px; color: #666; font-weight: 700;">نظام الإدارة المالية المتقدمة</p>
+                        </div>
+                    </div>
+                </div>
+                <div style="text-align: left; direction: ltr;">
+                    <h2 style="margin: 0 0 10px 0; font-size: 22px; font-weight: 800; color: #ccac00; text-transform: uppercase;">Statement / كشف حساب</h2>
+                    <div style="font-size: 12px; color: #888; font-weight: 600;">
+                        REFERENCE: #<span id="r-ref" style="font-family: 'Outfit'; color: #000;"></span><br>
+                        DATE: <span id="r-date" style="color: #000;"></span> | TIME: <span id="r-time" style="font-family: 'Outfit'; color: #000;"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Entities Info -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 40px;">
+                <div style="padding: 20px; border: 1px solid #eee; border-radius: 12px; background: #fafafa;">
+                    <p style="margin: 0 0 10px 0; font-size: 11px; font-weight: 800; color: #ccac00; text-transform: uppercase;">إلى السيد / السادة | TO CUSTOMER:</p>
+                    <h3 style="margin: 0; font-size: 22px; font-weight: 800; color: #000;" id="r-name">---</h3>
+                    <div style="margin-top: 10px; font-size: 14px; color: #555;">
+                        <i class="fas fa-phone"></i> رقم الهاتف: <span id="r-phone" style="font-family: 'Outfit'; font-weight: 700;">---</span>
+                    </div>
+                </div>
+                <div style="padding: 20px; border: 1px solid #eee; border-radius: 12px; display: flex; flex-direction: column; justify-content: center;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px dashed #ddd; padding-bottom: 8px;">
+                        <span style="font-size: 13px; color: #666;">نوع الحساب:</span>
+                        <span style="font-size: 14px; font-weight: 800; color: #000;" id="r-type">---</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="font-size: 13px; color: #666;">حالة الحساب:</span>
+                        <span style="font-size: 13px; font-weight: 700; color: #28a745;">نشط ومعتمد</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Financial Summary Card -->
+            <div style="background: #000; border-radius: 20px; padding: 40px; margin-bottom: 45px; position: relative; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.1);">
+                <!-- Decorative element -->
+                <div style="position: absolute; top: -50px; left: -50px; width: 150px; height: 150px; background: rgba(204, 172, 0, 0.1); border-radius: 50%;"></div>
+                
+                <div style="position: relative; z-index: 1; display: flex; justify-content: space-between; align-items: center;">
+                    <div style="text-align: right;">
+                        <h4 style="margin: 0; color: #ccac00; font-size: 14px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px;">إجمالي الرصيد المستحق للهذا الحساب</h4>
+                        <div style="font-size: 56px; font-weight: 900; color: #fff; font-family: 'Outfit';">
+                            <span id="r-amount">0.00</span> <small style="font-size: 20px; font-weight: 400; color: #888;">EGP</small>
+                        </div>
+                    </div>
+                    <div style="text-align: left;">
+                         <img id="r-qr" src="" width="110" height="110" style="border: 5px solid #fff; border-radius: 12px; background: #fff;">
+                    </div>
+                </div>
+                <div style="margin-top: 25px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;">
+                    <p style="margin: 0; font-size: 15px; color: #aaa;">
+                        المبلغ بالحروف: <span id="r-amount-text" style="color: #fff; font-weight: 800;">---</span> جنيه مصري لا غير.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Detailed Transactions Header -->
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+                <div style="width: 5px; height: 30px; background: #ccac00; border-radius: 2px;"></div>
+                <h3 style="margin: 0; font-size: 18px; font-weight: 800; color: #000;">سجل الحركات المالية الموثقة</h3>
+            </div>
+
+            <!-- Transaction Table -->
+            <table style="width: 100%; border-collapse: separate; border-spacing: 0; margin-bottom: 40px; border: 1px solid #eee; border-radius: 12px; overflow: hidden;">
+                <thead>
+                    <tr style="background: #f8f9fa;">
+                        <th style="padding: 15px; text-align: right; font-size: 12px; color: #666; font-weight: 800; border-bottom: 2px solid #eee;">التاريخ</th>
+                        <th style="padding: 15px; text-align: right; font-size: 12px; color: #666; font-weight: 800; border-bottom: 2px solid #eee;">النوع</th>
+                        <th style="padding: 15px; text-align: right; font-size: 12px; color: #666; font-weight: 800; border-bottom: 2px solid #eee;">البيان التفصيلي</th>
+                        <th style="padding: 15px; text-align: center; font-size: 12px; color: #666; font-weight: 800; border-bottom: 2px solid #eee;">القيمة</th>
+                    </tr>
+                </thead>
+                <tbody id="r-history-body">
+                    <!-- Dynamic Rows -->
+                </tbody>
+            </table>
+
+            <!-- Footnote Section -->
+            <div style="display: grid; grid-template-columns: 1fr 200px; gap: 40px; align-items: flex-start; margin-top: 30px;">
+                <div style="background: #fdfdfd; padding: 20px; border-radius: 12px; border: 1px dashed #ddd;">
+                    <h5 style="margin: 0 0 10px 0; font-size: 13px; color: #333; font-weight: 800;">ملاحظات وشروط:</h5>
+                    <p id="r-notes" style="margin: 0; font-size: 13px; color: #666; line-height: 1.6;">
+                        يرجى مراجعة الحساب في غضون 48 ساعة من تاريخ الاستلام في حال وجود أي استفسار.
+                    </p>
+                </div>
+                <div style="text-align: center; display: flex; flex-direction: column; gap: 15px;">
+                    <a id="r-wa-link" href="#" style="background: #25D366; color: #fff; padding: 12px; border-radius: 12px; text-decoration: none; font-weight: 800; font-size: 14px; display: block; box-shadow: 0 4px 15px rgba(37, 211, 102, 0.2);">
+                        <i class="fab fa-whatsapp"></i> ارسال عبر الواتس
+                    </a>
+                    <div style="padding-top: 20px; border-top: 1px solid #eee; font-size: 11px; color: #999;">
+                        توقيع المحاسب إلكترونياً
+                    </div>
+                </div>
+            </div>
+
+            <!-- Brand Footer -->
+            <div style="margin-top: 60px; text-align: center; border-top: 1px solid #eee; padding-top: 20px;">
+                <p style="margin: 0; font-size: 11px; color: #bbb; font-weight: 400; letter-spacing: 0.5px;">
+                    تم إنشاء هذا التقرير آلياً بواسطة نظام <span style="color: #ccac00; font-weight: 800;">DebtManager PRO</span> لعام 2026.
+                </p>
+                <p style="margin: 5px 0 0 0; font-size: 10px; color: #ccc;">
+                    CONFIDENTIAL & SECURE FINANCIAL STATEMENT
+                </p>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -841,62 +975,82 @@
         recognition.start();
     }
 
+    // Cache DOM lookups for speed
+    const dom = {
+        customerBody: document.getElementById('customerTableBody'),
+        factoryBody: document.getElementById('factoryTableBody'),
+        statUsers: document.getElementById('stat-total-users'),
+        statDebt: document.getElementById('stat-total-debt'),
+        statFactory: document.getElementById('stat-total-factory'),
+        statPaid: document.getElementById('stat-total-paid'),
+        searchInput: document.getElementById('searchInput')
+    };
+
     function renderTable() {
-        const customerBody = document.getElementById('customerTableBody');
-        const factoryBody = document.getElementById('factoryTableBody');
-        customerBody.innerHTML = '';
-        factoryBody.innerHTML = '';
+        let customerHtml = '';
+        let factoryHtml = '';
         
         let totalCustomerDebt = 0;
         let totalFactoryDebt = 0;
         let countUsers = 0;
         let paidCount = 0;
 
-        debts.forEach(debt => {
-            if(debt.type === 'customer') {
+        // One-pass data processing
+        const len = debts.length;
+        for (let i = 0; i < len; i++) {
+            const debt = debts[i];
+            const isCustomer = debt.type === 'customer';
+            const amount = parseFloat(debt.amount);
+
+            if(isCustomer) {
                 countUsers++;
-                if(debt.amount > 0) totalCustomerDebt += parseFloat(debt.amount);
+                if(amount > 0) totalCustomerDebt += amount;
                 else paidCount++;
             } else {
-                if(debt.amount > 0) totalFactoryDebt += parseFloat(debt.amount);
+                if(amount > 0) totalFactoryDebt += amount;
                 else paidCount++;
             }
 
-            const badgeClass = debt.amount === 0 ? 'paid' : 'unpaid';
-            const badgeText = debt.amount === 0 ? 'تم السداد' : (debt.type === 'customer' ? 'عليه ديون' : 'علينا دين');
+            const badgeClass = amount === 0 ? 'paid' : 'unpaid';
+            const badgeText = amount === 0 ? 'تم السداد' : (isCustomer ? 'عليه ديون' : 'علينا دين');
             const initial = debt.name.charAt(0);
+            const dateStr = debt.date ? debt.date.split('-').reverse().join('/') : '---';
 
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td data-label="الاسم">
-                    <div class="user-cell">
-                        <div class="avatar">${initial}</div>
-                        <div style="font-weight: 700;">${debt.name}</div>
-                    </div>
-                </td>
-                <td data-label="المبلغ" class="amount">${parseFloat(debt.amount).toLocaleString()} <span style="font-size:12px;color:var(--text-secondary)">جنيه</span></td>
-                <td data-label="آخر تعديل" style="font-family: 'Outfit'; font-size: 14px; color: var(--text-secondary);">${debt.date ? debt.date.split('-').reverse().join('/') : '---'}</td>
-                <td data-label="الملاحظات" style="font-size: 14px; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${debt.notes || '---'}</td>
-                <td data-label="الحالة"><span class="badge ${badgeClass}">${badgeText}</span></td>
-                <td data-label="إجراءات">
-                    <div class="actions">
-                        <button class="action-btn whatsapp" onclick="openWhatsApp('${debt.phone}')"><i class="fab fa-whatsapp"></i></button>
-                        <button class="action-btn edit" onclick="openEdit(${debt.id})"><i class="fas fa-pen"></i></button>
-                        <button class="action-btn delete" onclick="deleteDebt(${debt.id})"><i class="fas fa-trash"></i></button>
-                    </div>
-                </td>
-            `;
+            const rowHtml = `
+                <tr>
+                    <td data-label="الاسم">
+                        <div class="user-cell">
+                            <div class="avatar">${initial}</div>
+                            <div style="font-weight: 700;">${debt.name}</div>
+                        </div>
+                    </td>
+                    <td data-label="المبلغ" class="amount">${amount.toLocaleString()} <span style="font-size:12px;color:var(--text-secondary)">جنيه</span></td>
+                    <td data-label="آخر تعديل" style="font-family: Outfit; font-size: 14px; color: var(--text-secondary);">${dateStr}</td>
+                    <td data-label="الملاحظات" style="font-size: 14px; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${debt.notes || '---'}</td>
+                    <td data-label="الحالة"><span class="badge ${badgeClass}">${badgeText}</span></td>
+                    <td data-label="إجراءات">
+                        <div class="actions">
+                            <button class="action-btn whatsapp" onclick="openWhatsApp('${debt.phone}')"><i class="fab fa-whatsapp"></i></button>
+                            <button class="action-btn edit" onclick="openEdit(${debt.id})"><i class="fas fa-pen"></i></button>
+                            <button class="action-btn delete" onclick="deleteDebt(${debt.id})"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>`;
             
-            if(debt.type === 'customer') customerBody.appendChild(tr);
-            else factoryBody.appendChild(tr);
-        });
+            if(isCustomer) customerHtml += rowHtml;
+            else factoryHtml += rowHtml;
+        }
 
-        document.getElementById('stat-total-users').innerText = countUsers;
-        document.getElementById('stat-total-debt').innerText = totalCustomerDebt.toLocaleString();
-        document.getElementById('stat-total-factory').innerText = totalFactoryDebt.toLocaleString();
-        document.getElementById('stat-total-paid').innerText = paidCount;
+        // Single DOM write for main tables
+        dom.customerBody.innerHTML = customerHtml;
+        dom.factoryBody.innerHTML = factoryHtml;
 
-        // Check empty state for both tables
+        // Statistics
+        dom.statUsers.textContent = countUsers;
+        dom.statDebt.textContent = totalCustomerDebt.toLocaleString();
+        dom.statFactory.textContent = totalFactoryDebt.toLocaleString();
+        dom.statPaid.textContent = paidCount;
+
         checkEmpty('customerTableBody');
         checkEmpty('factoryTableBody');
     }
@@ -1075,74 +1229,204 @@
         });
     }
 
-    function generatePDF(source) {
-        let name, date, amount, notes, actionTitle;
-        
-        if (source === 'add') {
-            name = document.getElementById('addName').value;
-            date = document.getElementById('addDate').value;
-            amount = document.getElementById('addAmount').value;
-            notes = document.getElementById('addNotes').value;
-            actionTitle = "المبلغ المسجل:";
-            if(!name || !amount) { alert('يرجى ملء الاسم والمبلغ قبل تحميل الـ PDF'); return; }
-        } else if (source === 'edit') {
-            name = document.getElementById('editUserName').innerText;
-            date = document.getElementById('editDate').value;
-            amount = tempEditAmount; 
-            notes = document.getElementById('editNotes').value;
-            actionTitle = "الرصيد المُحدّث:";
+    async function selectContact() {
+        if (!('contacts' in navigator) || !('ContactsManager' in window)) {
+            showToast('⚠️ متصفحك لا يدعم اختيار جهات الاتصال بشكل مباشر', 'error');
+            return;
         }
 
-        document.getElementById('r-date').innerText = date ? date.split('-').reverse().join('/') : '---';
-        document.getElementById('r-name').innerText = name;
-        document.getElementById('r-amount').innerText = parseFloat(amount).toLocaleString();
-        document.getElementById('r-notes').innerText = notes || 'لا توجد ملاحظات';
-        document.getElementById('r-action-title').innerText = actionTitle;
+        const props = ['name', 'tel'];
+        const opts = { multiple: false };
 
-        const element = document.getElementById('receipt');
-        element.style.display = 'block';
+        try {
+            const contacts = await navigator.contacts.select(props, opts);
+            if (contacts.length > 0) {
+                const contact = contacts[0];
+                if (contact.name && contact.name.length > 0) {
+                    document.getElementById('addName').value = contact.name[0];
+                }
+                if (contact.tel && contact.tel.length > 0) {
+                    let phone = contact.tel[0].replace(/\D/g, '');
+                    document.getElementById('addPhone').value = phone;
+                }
+                showToast('✅ تم استيراد جهة الاتصال بنجاح', 'success');
+            }
+        } catch (ex) {
+            console.error("Contact Picker Error:", ex);
+            if(ex.name !== 'AbortError') {
+                showToast('❌ حدث خطأ أثناء الوصول لجهات الاتصال', 'error');
+            }
+        }
+    }
+
+    function arabicNumberToWords(amount) {
+        if (amount === 0) return 'صفر';
+        // Simple implementation for common debt amounts
+        const formatter = new Intl.NumberFormat('ar-EG');
+        return formatter.format(amount); // For now, just a formatted number in Arabic locale is a good fallback, or a custom string
+    }
+
+    function generatePDF(source) {
+        let targetDebt;
         
+        if (source === 'add') {
+            const type = document.querySelector('input[name="accountType"]:checked').value;
+            const name = document.getElementById('addName').value;
+            const amount = parseFloat(document.getElementById('addAmount').value) || 0;
+            const phone = document.getElementById('addPhone').value;
+            const date = document.getElementById('addDate').value;
+            const notes = document.getElementById('addNotes').value;
+
+            if(!name || !amount) {
+                showToast('⚠️ يرجى ملء الاسم والمبلغ أولاً', 'error');
+                return;
+            }
+            
+            targetDebt = {
+                name, type, amount, phone, date, notes,
+                history: [{ date, adjustment: amount, notes: notes || 'رصيد افتتاحي', isInitial: true }]
+            };
+        } else {
+            const originalDebt = debts.find(d => d.id === currentEditId);
+            if (!originalDebt) return;
+            
+            const editDate = document.getElementById('editDate').value;
+            const editNotes = document.getElementById('editNotes').value;
+            const diff = tempEditAmount - originalDebt.amount;
+            
+            let previewHistory = [...(originalDebt.history || [])];
+            if (diff !== 0) {
+                previewHistory.push({
+                    date: editDate,
+                    adjustment: diff,
+                    notes: editNotes || (diff > 0 ? 'فاتورة جديدة (قيد الحفظ)' : 'دفعة سداد (قيد الحفظ)'),
+                    isInitial: false
+                });
+            }
+
+            targetDebt = {
+                ...originalDebt,
+                amount: tempEditAmount,
+                notes: editNotes || originalDebt.notes,
+                date: editDate,
+                history: previewHistory
+            };
+        }
+
+        // --- Populate New PDF Template ---
+        const now = new Date();
+        document.getElementById('r-name').innerText = targetDebt.name;
+        document.getElementById('r-date').innerText = targetDebt.date ? targetDebt.date.split('-').reverse().join('/') : '---';
+        document.getElementById('r-time').innerText = now.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+        document.getElementById('r-phone').innerText = targetDebt.phone || 'غير مسجل';
+        document.getElementById('r-type').innerText = targetDebt.type === 'customer' ? 'حساب زبون (لي فلوس)' : 'حساب مصنع (عليّ فلوس)';
+        document.getElementById('r-amount').innerText = parseFloat(targetDebt.amount).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        
+        // Tafqeet fallback (Simple formatted number in Arabic context)
+        document.getElementById('r-amount-text').innerText = parseFloat(targetDebt.amount).toLocaleString('ar-EG');
+        
+        const refId = Math.floor(100000 + Math.random() * 900000);
+        document.getElementById('r-ref').innerText = refId;
+        document.getElementById('r-notes').innerText = targetDebt.notes || 'تمت مراجعة الحساب وتأكيده بناءً على السجلات الحالية.';
+
+        // QR Code Generation
+        const qrData = `DebtManager Report\nRef: ${refId}\nName: ${targetDebt.name}\nBalance: ${targetDebt.amount} EGP\nDate: ${now.toLocaleDateString()}`;
+        document.getElementById('r-qr').src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(qrData)}`;
+
+        // WhatsApp Share Link inside PDF
+        const shareMsg = `تقرير مالي من DebtManager\nالاسم: ${targetDebt.name}\nالرصيد: ${targetDebt.amount} جنيه\nبتاريخ: ${targetDebt.date}`;
+        document.getElementById('r-wa-link').href = `https://wa.me/?text=${encodeURIComponent(shareMsg)}`;
+
+        // History Table
+        const historyBody = document.getElementById('r-history-body');
+        historyBody.innerHTML = '';
+        
+        [...targetDebt.history].reverse().forEach((h, index) => {
+            const tr = document.createElement('tr');
+            tr.style.backgroundColor = index % 2 === 0 ? '#ffffff' : '#fcfcfc';
+            
+            const typeText = h.isInitial ? 'رصيد افتتاحي' : (h.adjustment > 0 ? 'فاتورة (+)' : 'دفعة (-)');
+            const typeColor = h.isInitial ? '#666' : (h.adjustment > 0 ? '#28a745' : '#dc3545');
+            const typeBg = h.isInitial ? '#f0f0f0' : (h.adjustment > 0 ? '#e8f5e9' : '#ffebee');
+            
+            tr.innerHTML = `
+                <td style="padding: 15px; font-size: 13px; font-family: 'Outfit'; border-bottom: 1px solid #eee;">${h.date ? h.date.split('-').reverse().join('/') : '---'}</td>
+                <td style="padding: 15px; font-size: 12px; font-weight:bold; border-bottom: 1px solid #eee;">
+                    <span style="background:${typeBg}; color:${typeColor}; padding:5px 12px; border-radius:8px; display:inline-block; font-size:11px;">${typeText}</span>
+                </td>
+                <td style="padding: 15px; font-size: 13px; color:#444; border-bottom: 1px solid #eee; font-weight:500;">${h.notes || '---'}</td>
+                <td style="padding: 15px; text-align: center; font-weight:800; font-family: 'Outfit'; font-size: 16px; color:#000; border-bottom: 1px solid #eee;">${Math.abs(h.adjustment).toLocaleString()}</td>
+            `;
+            historyBody.appendChild(tr);
+        });
+
+        // Render PDF
+        const element = document.getElementById('receipt');
+        showToast('⏳ جاري إنشاء التقرير الفاخر...', 'info');
+
         const opt = {
-            margin:       10,
-            filename:     `إيصال_${name}.pdf`,
-            image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { scale: 2 },
+            margin:       [0, 0], // Bleed to edges if needed, handled by internal padding
+            filename:     `DebtManager_${targetDebt.name}_${targetDebt.date}.pdf`,
+            image:        { type: 'jpeg', quality: 1 },
+            html2canvas:  { 
+                scale: 3, 
+                useCORS: true,
+                letterRendering: false,
+                scrollY: 0,
+                scrollX: 0
+            },
             jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
 
         html2pdf().set(opt).from(element).save().then(() => {
-            element.style.display = 'none';
+            showToast('✅ تم تحميل التقرير بنجاح', 'success');
+        }).catch(err => {
+            console.error('PDF Error:', err);
+            showToast('❌ حدث خطأ أثناء تحميل الملف', 'error');
         });
     }
 
+    // Debounced filter for smoothness
+    let searchTimeout;
     function filterTable() {
-        const input = document.getElementById("searchInput").value.toLowerCase();
-        const customerRows = document.getElementById("customerTableBody").getElementsByTagName("tr");
-        const factoryRows = document.getElementById("factoryTableBody").getElementsByTagName("tr");
-        
-        function filter(rows) {
-            for (let i = 0; i < rows.length; i++) {
-                const nameCell = rows[i].getElementsByTagName("td")[0];
-                if (nameCell && nameCell.textContent.toLowerCase().indexOf(input) > -1) {
-                    rows[i].style.display = "";
-                } else { rows[i].style.display = "none"; }
-            }
-        }
-        filter(customerRows);
-        filter(factoryRows);
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            const input = dom.searchInput.value.toLowerCase();
+            const customerRows = dom.customerBody.querySelectorAll("tr");
+            const factoryRows = dom.factoryBody.querySelectorAll("tr");
+            
+            const filter = (rows) => {
+                const len = rows.length;
+                for (let i = 0; i < len; i++) {
+                    const row = rows[i];
+                    const name = row.querySelector('.user-cell div:last-child').textContent.toLowerCase();
+                    row.style.display = name.includes(input) ? "" : "none";
+                }
+            };
+            filter(customerRows);
+            filter(factoryRows);
+        }, 150);
     }
 
     // ===== Toast Utility =====
-    function showToast(msg) {
+    function showToast(msg, type = 'info') {
         const toast = document.createElement('div');
-        toast.className = 'toast';
-        toast.innerText = msg;
+        toast.className = `toast ${type}`;
+        
+        // Add icon based on type
+        let icon = '';
+        if (type === 'success') icon = '<i class="fas fa-check-circle"></i>';
+        else if (type === 'error') icon = '<i class="fas fa-exclamation-circle"></i>';
+        else if (type === 'info') icon = '<i class="fas fa-info-circle"></i>';
+        
+        toast.innerHTML = `${icon} <span>${msg}</span>`;
         document.body.appendChild(toast);
+        
         setTimeout(() => toast.classList.add('show'), 100);
         setTimeout(() => {
             toast.classList.remove('show');
             setTimeout(() => toast.remove(), 300);
-        }, 2500);
+        }, 3000);
     }
 
     // ===== Confirm Delete =====
