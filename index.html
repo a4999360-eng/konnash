@@ -1663,51 +1663,42 @@
         }
 
         // Push a NEW debt to RTDB using push() — returns the generated Firebase key
-        async function pushDebtToRTDB(debt) {
+        function pushDebtToRTDB(debt) {
             const fb = getFS();
             if (!fb || !currentUser) return null;
             try {
                 const listRef = debtsRef();
                 const newRef = fb.push(listRef);   // generates a unique key
-                await fb.set(newRef, debt);
+                fb.set(newRef, debt).catch(e => console.error('RTDB push error:', e));
                 return newRef.key;                   // return the Firebase key as the debt id
             } catch (e) {
-                console.error('RTDB push error:', e);
+                console.error('RTDB push sync error:', e);
                 return null;
             }
         }
 
         // Update an EXISTING debt in RTDB using set() on its specific path
-        async function updateDebtInRTDB(debt) {
+        function updateDebtInRTDB(debt) {
             const fb = getFS();
             if (!fb || !currentUser || !debt.id) return;
-            try {
-                await fb.set(debtRef(debt.id), debt);
-            } catch (e) {
-                console.error('RTDB update error:', e);
-            }
+            fb.set(debtRef(debt.id), debt).catch(e => console.error('RTDB update error:', e));
         }
 
         // Remove a debt from RTDB using remove() on its specific path
-        async function removeDebtFromRTDB(id) {
+        function removeDebtFromRTDB(id) {
             const fb = getFS();
             if (!fb || !currentUser || !id) return;
-            try {
-                await fb.remove(debtRef(id));
-            } catch (e) {
-                console.error('RTDB remove error:', e);
-            }
+            fb.remove(debtRef(id)).catch(e => console.error('RTDB remove error:', e));
         }
 
         // Migrate OLD localStorage array (bulk) to individual RTDB records (one-time)
-        async function migrateLocalToRTDB(localDebts) {
+        function migrateLocalToRTDB(localDebts) {
             for (const debt of localDebts) {
-                const key = await pushDebtToRTDB(debt);
+                const key = pushDebtToRTDB(debt);
                 if (key) debt.id = key;   // Assign Firebase key as new id
             }
         }
 
-        // Subscribe to real-time RTDB updates for the current user
         function subscribeRTDB() {
             const fb = getFS();
             if (!fb || !currentUser) return;
@@ -1718,21 +1709,26 @@
             const path = debtsRef();
             fb.unsubscribe = path;   // save so we can call off() on logout
 
+            let hasCheckedMigration = false;
+
             fb.onValue(path, (snap) => {
                 if (snap.exists()) {
-                    // RTDB returns an Object {key: debt}, convert to array sorted newest-first
                     const raw = snap.val();
                     debts = Object.entries(raw)
                         .map(([key, val]) => ({ ...val, id: key }))
                         .sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+                    hasCheckedMigration = true;
                 } else {
-                    // First login — try to migrate existing localStorage data
-                    const stored = localStorage.getItem(`debts_${currentUser}`);
-                    const legacy = stored ? JSON.parse(stored) : [];
                     debts = [];
-                    if (legacy.length > 0) {
-                        migrateLocalToRTDB(legacy); // pushes each record; onValue will fire again
-                        return;
+                    // Only attempt migration exactly once on the initial load if DB is empty
+                    if (!hasCheckedMigration) {
+                        hasCheckedMigration = true;
+                        const stored = localStorage.getItem(`debts_${currentUser}`);
+                        const legacy = stored ? JSON.parse(stored) : [];
+                        if (legacy.length > 0) {
+                            migrateLocalToRTDB(legacy); // pushes each record; onValue will fire again
+                            return;
+                        }
                     }
                 }
                 // Sync local cache
@@ -1848,6 +1844,28 @@
 
             document.getElementById('customerTab').classList.toggle('active', type === 'customer');
             document.getElementById('factoryTab').classList.toggle('active', type === 'factory');
+            
+            // Re-apply search filter when switching tabs
+            if(typeof filterTable === 'function') filterTable();
+        }
+
+        // Search Filter Function
+        function filterTable() {
+            const term = document.getElementById('searchInput').value.toLowerCase();
+            const activeType = document.getElementById('customerTab').classList.contains('active') ? 'customer' : 'factory';
+            const tbodyId = activeType === 'customer' ? 'dataRows' : 'factoryTableBody';
+            const tbody = document.getElementById(tbodyId);
+            
+            if (!tbody) return;
+            const rows = tbody.querySelectorAll('tr');
+
+            rows.forEach(row => {
+                const nameCell = row.querySelector('.user-cell');
+                if (nameCell) {
+                    const name = nameCell.textContent.toLowerCase();
+                    row.style.display = name.includes(term) ? '' : 'none';
+                }
+            });
         }
 
         function openModal(id) { document.getElementById(id).classList.add('active'); }
@@ -1973,7 +1991,7 @@
             checkEmpty('factoryTableBody');
         }
 
-        async function saveNewDebt() {
+        function saveNewDebt() {
             const type = document.querySelector('input[name="accountType"]:checked').value;
             const name = document.getElementById('pName').value.trim();
             const phone = document.getElementById('addPhone').value.trim();
@@ -1993,13 +2011,8 @@
                 history: [{ date, adjustment: amount, notes: notes || 'تسجيل الحساب أول مرة', isInitial: true }]
             };
 
-            // Push to RTDB — the returned Firebase key becomes the debt id
-            const firebaseKey = await pushDebtToRTDB(newDebt);
-            if (firebaseKey) newDebt.id = firebaseKey;
-
-            // Optimistically update local array & cache
-            debts.unshift({ ...newDebt, id: firebaseKey || Date.now() });
-            saveLocalData();
+            // Push to RTDB — this instantly triggers onValue locally so we don't need manual unshift
+            pushDebtToRTDB(newDebt);
 
             closeModal('addModal');
             document.getElementById('pName').value = '';
@@ -2104,12 +2117,10 @@
             currentDebt.date = editDate;
             currentDebt.notes = editNotes || currentDebt.notes;
 
-            // Save to RTDB (individual record) + localStorage cache
+            // Save to RTDB (individual record). onValue fires instantly so we don't manually saveLocalData here
             updateDebtInRTDB(currentDebt);
-            saveLocalData();
 
             closeModal('editModal');
-            renderTable();
             showToast('✏️ تم تحديث الحساب بنجاح', 'info');
         }
 
@@ -2149,12 +2160,8 @@
 
         function deleteDebt(id) {
             confirmDelete(() => {
-                // Remove from RTDB using the Firebase key
+                // Remove from RTDB using the Firebase key. onValue fires instantly to update UI
                 removeDebtFromRTDB(id);
-                // Remove from local array & update localStorage
-                debts = debts.filter(d => d.id !== id);
-                saveLocalData();
-                renderTable();
             });
         }
 
@@ -2386,52 +2393,6 @@
 
         initApp();
     </script>
-
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
-  import { getFirestore, collection, addDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
-
-  const firestoreConfig = {
-    apiKey: "AIzaSyDfgO7tVjztx4j-4A4RHE8-zeaDYggpnx8",
-    authDomain: "adham-project.firebaseapp.com",
-    projectId: "adham-project",
-    storageBucket: "adham-project.firebasestorage.app",
-    messagingSenderId: "103669813823",
-    appId: "1:103669813823:web:e8550f1da821d2c7e59e8a"
-  };
-
-  const firestoreApp = initializeApp(firestoreConfig, 'firestoreApp');
-  const fsDb = getFirestore(firestoreApp);
-
-  // حفظ البيانات
-  document.getElementById("saveBtn").addEventListener("click", async () => {
-    const name = document.getElementById("pName").value;
-    const amount = document.getElementById("pAmount").value;
-    if (name && amount) {
-      try {
-        await addDoc(collection(fsDb, "konnash"), {
-          customer: name,
-          amount: amount,
-          date: new Date()
-        });
-      } catch(e) {
-        console.error("Firestore save error:", e);
-      }
-    }
-  });
-
-  // عرض البيانات لحظياً في الجدول
-  const q = query(collection(fsDb, "konnash"), orderBy("date", "desc"));
-  onSnapshot(q, (snapshot) => {
-    const tbody = document.getElementById("dataRows");
-    tbody.innerHTML = "";
-    snapshot.forEach((doc) => {
-      const item = doc.data();
-      const dateStr = item.date ? item.date.toDate().toLocaleDateString('ar-EG') : '';
-      tbody.innerHTML += `<tr><td>${item.customer}</td><td>${item.amount} ج.م</td><td>${dateStr}</td></tr>`;
-    });
-  });
-</script>
 
 </body>
 
