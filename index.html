@@ -1,1179 +1,1940 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Debt Manager | إدارة الديون</title><!-- Performance & Speed Optimizations -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preconnect" href="https://cdnjs.cloudflare.com">
-<link rel="dns-prefetch" href="https://fonts.googleapis.com">
-<link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>Debt Manager | إدارة الديون</title><!-- Performance & Speed Optimizations -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+    <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
 
-<!-- Google Fonts with Swap -->
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
-<!-- FontAwesome -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'">
-<!-- html2pdf -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" defer></script>
-<!-- Google Identity Services -->
-<script src="https://accounts.google.com/gsi/client" async defer></script>
-<!-- Firebase Realtime Database SDK -->
-<script type="module">
-    import { initializeApp }                                       from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-    import { getDatabase, ref, push, set, remove, onValue, off }   from "https://www.gstatic.com/firebasejs/12.11.0/firebase-database.js";
+    <!-- Google Fonts with Swap -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Tajawal:wght@400;500;700;800&display=swap"
+        rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        media="print" onload="this.media='all'">
+    <!-- html2pdf -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" defer></script>
+    <!-- Google Identity Services -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <!-- Firebase Realtime Database SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+        import { getDatabase, ref, push, set, remove, onValue, off } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-database.js";
 
-    const firebaseConfig = {
-        apiKey:            "AIzaSyDfgO7tVjztx4j-4A4RHE8-zeaDYggpnx8",
-        authDomain:        "adham-project.firebaseapp.com",
-        databaseURL:       "https://adham-project-default-rtdb.europe-west1.firebasedatabase.app",
-        projectId:         "adham-project",
-        storageBucket:     "adham-project.firebasestorage.app",
-        messagingSenderId: "103669813823",
-        appId:             "1:103669813823:web:626f1fb15543ef2fe59e8a",
-        measurementId:     "G-2FN5JHRNHK"
-    };
+        const firebaseConfig = {
+            apiKey: "AIzaSyDfgO7tVjztx4j-4A4RHE8-zeaDYggpnx8",
+            authDomain: "adham-project.firebaseapp.com",
+            databaseURL: "https://adham-project-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "adham-project",
+            storageBucket: "adham-project.firebasestorage.app",
+            messagingSenderId: "103669813823",
+            appId: "1:103669813823:web:626f1fb15543ef2fe59e8a",
+            measurementId: "G-2FN5JHRNHK"
+        };
 
-    const firebaseApp = initializeApp(firebaseConfig);
-    const db          = getDatabase(firebaseApp);
+        const firebaseApp = initializeApp(firebaseConfig);
+        const db = getDatabase(firebaseApp);
 
-    // Expose RTDB helpers to the global scope so the main script can call them
-    window._firebase = {
-        db,
-        ref,
-        push,
-        set,
-        remove,
-        onValue,
-        off,
-        unsubscribe: null   // holds the active listener ref for cleanup
-    };
+        // Expose RTDB helpers to the global scope so the main script can call them
+        window._firebase = {
+            db,
+            ref,
+            push,
+            set,
+            remove,
+            onValue,
+            off,
+            unsubscribe: null   // holds the active listener ref for cleanup
+        };
 
-    // Signal that Firebase is ready
-    window.dispatchEvent(new Event('firebase-ready'));
-</script>
+        // Signal that Firebase is ready
+        window.dispatchEvent(new Event('firebase-ready'));
+    </script>
 
-<style>
-    :root {
-        --bg-main: #0a0a0c;
-        --bg-card: rgba(26, 26, 30, 0.7);
-        --bg-card-hover: rgba(35, 35, 40, 0.9);
-        --accent-primary: #FFD700; /* Gold */
-        --accent-secondary: #ffb800;
-        --accent-glow: rgba(255, 215, 0, 0.3);
-        --text-primary: #ffffff;
-        --text-secondary: #a0a0a5;
-        --border-color: rgba(255, 255, 255, 0.08);
-        --success: #00e676;
-        --success-bg: rgba(0, 230, 118, 0.1);
-        --danger: #ff3d00;
-        --danger-bg: rgba(255, 61, 0, 0.1);
-        --glass-blur: blur(12px);
-    }
+    <style>
+        :root {
+            --bg-main: #0a0a0c;
+            --bg-card: rgba(26, 26, 30, 0.7);
+            --bg-card-hover: rgba(35, 35, 40, 0.9);
+            --accent-primary: #FFD700;
+            /* Gold */
+            --accent-secondary: #ffb800;
+            --accent-glow: rgba(255, 215, 0, 0.3);
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a5;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --success: #00e676;
+            --success-bg: rgba(0, 230, 118, 0.1);
+            --danger: #ff3d00;
+            --danger-bg: rgba(255, 61, 0, 0.1);
+            --glass-blur: blur(12px);
+        }
 
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    body {
-        font-family: 'Tajawal', 'Outfit', sans-serif;
-        background-color: var(--bg-main);
-        color: var(--text-primary);
-        min-height: 100vh;
-        overflow-x: hidden;
-        position: relative;
-    }
+        body {
+            font-family: 'Tajawal', 'Outfit', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
 
-    /* Ambient Background Glow */
-    .ambient-glow {
-        position: fixed; width: 600px; height: 600px;
-        background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
-        top: -200px; left: -200px; z-index: -1; opacity: 0.5; pointer-events: none;
-        animation: float 10s infinite alternate ease-in-out;
-    }
-    .ambient-glow.right {
-        top: auto; bottom: -200px; left: auto; right: -200px;
-        background: radial-gradient(circle, rgba(255,215,0,0.1) 0%, transparent 70%);
-        animation: float-reverse 12s infinite alternate;
-    }
+        /* Ambient Background Glow */
+        .ambient-glow {
+            position: fixed;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+            top: -200px;
+            left: -200px;
+            z-index: -1;
+            opacity: 0.5;
+            pointer-events: none;
+            animation: float 10s infinite alternate ease-in-out;
+        }
 
-    @keyframes float { 0% { transform: translate(0, 0); } 100% { transform: translate(50px, 50px); } }
-    @keyframes float-reverse { 0% { transform: translate(0, 0); } 100% { transform: translate(-50px, -50px); } }
+        .ambient-glow.right {
+            top: auto;
+            bottom: -200px;
+            left: auto;
+            right: -200px;
+            background: radial-gradient(circle, rgba(255, 215, 0, 0.1) 0%, transparent 70%);
+            animation: float-reverse 12s infinite alternate;
+        }
 
-    /* Header */
-    header {
-        display: flex; justify-content: space-between; align-items: center;
-        padding: 20px 5%; background: rgba(10, 10, 12, 0.8);
-        backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
-        border-bottom: 1px solid var(--border-color);
-        position: sticky; top: 0; z-index: 100;
-    }
+        @keyframes float {
+            0% {
+                transform: translate(0, 0);
+            }
 
-    .logo {
-        display: flex; align-items: center; gap: 12px;
-    }
-    .logo img {
-        height: 48px; width: auto; object-fit: contain; 
-        filter: drop-shadow(0 4px 12px rgba(255, 215, 0, 0.4));
-    }
-    .logo-text {
-        font-size: 26px; font-weight: 800;
-        background: linear-gradient(135deg, var(--accent-primary), #fff);
-        background-clip: text;
-        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    }
+            100% {
+                transform: translate(50px, 50px);
+            }
+        }
 
-    .btn {
-        padding: 12px 24px; border: none; border-radius: 12px;
-        cursor: pointer; font-family: inherit; font-weight: 700; font-size: 15px;
-        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-        display: inline-flex; align-items: center; gap: 8px; justify-content: center;
-    }
-    
-    .btn-outline { background: transparent; color: var(--accent-primary); border: 2px solid var(--accent-primary); }
-    .btn-outline:hover { background: var(--accent-primary); color: var(--bg-main); box-shadow: 0 0 20px var(--accent-glow); transform: translateY(-2px); }
-    
-    .btn-primary { background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); color: var(--bg-main); box-shadow: 0 4px 15px var(--accent-glow); }
-    .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 8px 25px var(--accent-glow); filter: brightness(1.1); }
-    
-    /* Hero */
-    .hero {
-        text-align: center; padding: 100px 20px 60px; max-width: 800px;
-        margin: 0 auto; animation: fadeUp 1s forwards; opacity: 0; transform: translateY(30px);
-    }
-    .hero h1 { font-size: 48px; font-weight: 800; margin-bottom: 20px; line-height: 1.2; }
-    .hero h1 span { color: var(--accent-primary); position: relative; }
-    .hero p { font-size: 20px; color: var(--text-secondary); margin-bottom: 40px; font-weight: 400; }
+        @keyframes float-reverse {
+            0% {
+                transform: translate(0, 0);
+            }
 
-    /* Stats Section */
-    .stats {
-        display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px;
-        padding: 0 5%; margin-bottom: 60px; justify-content: center;
-    }
-    .card {
-        background: var(--bg-card); backdrop-filter: var(--glass-blur);
-        border: 1px solid var(--border-color); padding: 35px 25px; border-radius: 20px;
-        text-align: center; transition: all 0.4s; position: relative; overflow: hidden;
-    }
-    .card:hover { transform: translateY(-8px); background: var(--bg-card-hover); border-color: rgba(255, 215, 0, 0.2); box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4); }
-    .card-icon { font-size: 32px; color: var(--accent-primary); margin-bottom: 15px; opacity: 0.8; }
-    .card h2 { font-size: 42px; font-weight: 800; color: var(--text-primary); margin-bottom: 10px; font-family: 'Outfit', sans-serif; }
-    .card p { color: var(--text-secondary); font-size: 16px; font-weight: 500; }
+            100% {
+                transform: translate(-50px, -50px);
+            }
+        }
 
-    /* Table */
-    .debts { padding: 0 5% 80px; }
-    .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-    .debts h2 { font-size: 28px; font-weight: 700; display: flex; align-items: center; gap: 12px; }
-    .debts h2 i { color: var(--accent-primary); }
-    .table-container { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 20px; overflow: hidden; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); }
-    table { width: 100%; border-collapse: collapse; text-align: right; }
-    thead { background: rgba(0, 0, 0, 0.3); }
-    th { padding: 20px; font-weight: 600; color: var(--text-secondary); font-size: 14px; border-bottom: 1px solid var(--border-color); }
-    td { padding: 20px; font-weight: 500; border-bottom: 1px solid var(--border-color); }
-    tbody tr:hover { background: rgba(255, 255, 255, 0.03); }
-    tbody tr:last-child td { border-bottom: none; }
-
-    .user-cell { display: flex; align-items: center; gap: 12px; }
-    .avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--accent-glow); color: var(--accent-primary); border: 1px solid rgba(255,215,0,0.2); display: flex; justify-content: center; align-items: center; font-weight: 700; }
-    .amount { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 16px; }
-    
-    .badge { padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 700; display: inline-block; }
-    .badge.unpaid { background: rgba(255, 215, 0, 0.1); color: var(--accent-primary); border: 1px solid rgba(255, 215, 0, 0.2); }
-    .badge.paid { background: var(--success-bg); color: var(--success); border: 1px solid rgba(0, 230, 118, 0.2); }
-
-    .actions { display: flex; gap: 10px; }
-    .action-btn { background: transparent; border: none; color: var(--text-secondary); width: 35px; height: 35px; border-radius: 8px; cursor: pointer; transition: 0.2s; display: flex; justify-content: center; align-items: center; }
-    .action-btn:hover { background: rgba(255, 255, 255, 0.1); color: var(--text-primary); }
-    .action-btn.edit:hover { color: var(--accent-primary); }
-    .action-btn.delete:hover { color: var(--danger); }
-    .action-btn.whatsapp:hover { color: #25D366; } /* WhatsApp Green */
-
-    /* Modals */
-    .modal-overlay {
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-        display: flex; align-items: center; justify-content: center;
-        z-index: 1000; opacity: 0; visibility: hidden; transition: all 0.3s ease;
-    }
-    .modal-overlay.active { opacity: 1; visibility: visible; }
-    .modal {
-        background: var(--bg-main); border: 1px solid var(--border-color); border-radius: 24px;
-        width: 90%; max-width: 500px; padding: 30px;
-        transform: translateY(30px) scale(0.95); transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        box-shadow: 0 25px 50px rgba(0,0,0,0.5); position: relative;
-        max-height: 90vh; overflow-y: auto;
-    }
-    .modal-overlay.active .modal { transform: translateY(0) scale(1); }
-    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; }
-    .modal-header h3 { font-size: 22px; font-weight: 700; color: var(--accent-primary); }
-    .close-btn { background: transparent; border: none; color: var(--text-secondary); font-size: 24px; cursor: pointer; transition: 0.3s; }
-    .close-btn:hover { color: var(--danger); transform: rotate(90deg); }
-
-    .form-group { margin-bottom: 20px; }
-    .form-group label { display: block; margin-bottom: 8px; font-size: 14px; color: var(--text-secondary); font-weight: 500; }
-    .form-control {
-        width: 100%; padding: 14px 18px; border-radius: 12px;
-        border: 1px solid var(--border-color); background: rgba(255, 255, 255, 0.03);
-        color: var(--text-primary); font-family: inherit; font-size: 15px; transition: 0.3s;
-    }
-    .form-control:focus { outline: none; border-color: var(--accent-primary); background: rgba(255, 215, 0, 0.05); box-shadow: 0 0 0 4px rgba(255, 215, 0, 0.1); }
-    
-    .modal-footer { display: flex; gap: 15px; margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--border-color); }
-    
-    .amount-adjust-group { display: flex; gap: 10px; align-items: center; }
-    .amount-adjust-group input { flex: 1; text-align: center; font-family: 'Outfit'; font-weight: bold; font-size: 18px;}
-    
-    .btn-action {
-        padding: 12px 20px; border-radius: 12px; font-weight: 700; cursor: pointer; border: 2px solid transparent; transition: 0.3s; font-family: inherit;
-        min-width: 90px;
-    }
-    .btn-payment { background: var(--danger-bg); border-color: rgba(255,61,0,0.3); color: var(--danger); }
-    .btn-payment:hover { background: var(--danger); color: white; }
-    
-    .btn-invoice { background: var(--success-bg); border-color: rgba(0,230,118,0.3); color: var(--success); }
-    .btn-invoice:hover { background: var(--success); color: white; }
-
-    /* Tabs */
-    .tabs-container { display: flex; justify-content: center; margin-bottom: 30px; padding: 0 5%; gap: 15px; }
-    .tab-btn {
-        padding: 12px 30px; border-radius: 15px; border: 1px solid var(--border-color);
-        background: var(--bg-card); color: var(--text-secondary); font-family: inherit;
-        font-weight: 700; cursor: pointer; transition: all 0.3s;
-        display: flex; align-items: center; gap: 10px;
-    }
-    .tab-btn.active {
-        background: var(--accent-primary); color: var(--bg-main);
-        border-color: var(--accent-primary); box-shadow: 0 0 20px var(--accent-glow);
-    }
-    .tab-btn:hover:not(.active) { background: var(--bg-card-hover); border-color: rgba(255,215,0,0.3); color: #fff; }
-
-    #factorySection { display: none; }
-
-    /* Edit History List */
-    .history-container {
-        margin-top: 25px;
-        background: rgba(0,0,0,0.2); border: 1px solid var(--border-color); border-radius: 12px;
-        max-height: 250px; overflow-y: auto; padding: 10px;
-    }
-    .history-item {
-        padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.05);
-        display: flex; flex-direction: column; gap: 8px;
-    }
-    .history-item:last-child { border-bottom: none; }
-    .history-top { display: flex; justify-content: space-between; align-items: center; }
-    .history-date { font-family: 'Outfit'; font-size: 13px; color: var(--text-secondary); display: flex; align-items: center; gap: 5px; }
-    .history-val { font-family: 'Outfit'; font-weight: 700; font-size: 15px; }
-    .history-val.increase { color: var(--success); }
-    .history-val.decrease { color: var(--danger); }
-    .history-val.neutral { color: var(--accent-primary); }
-    .history-note {
-        font-size: 14px; padding: 8px 12px; border-radius: 8px;
-        background: rgba(255,255,255,0.03); border-right: 3px solid var(--accent-primary);
-        color: #ddd; line-height: 1.4;
-    }
-
-    #receipt-container { display: none; }
-
-    /* Voice Notes Styling */
-    .notes-wrapper { position: relative; }
-    .mic-btn {
-        position: absolute; left: 10px; bottom: 10px;
-        background: var(--bg-card); border: 1px solid var(--border-color);
-        color: var(--text-secondary); width: 40px; height: 40px; border-radius: 50%;
-        display: flex; align-items: center; justify-content: center;
-        cursor: pointer; transition: 0.3s; z-index: 5;
-    }
-    .mic-btn:hover { color: var(--accent-primary); border-color: var(--accent-primary); background: rgba(255, 215, 0, 0.05); }
-    .mic-btn.recording {
-        color: var(--danger); border-color: var(--danger);
-        animation: pulse-red 1.5s infinite;
-        background: rgba(255, 61, 0, 0.1);
-    }
-
-    @keyframes pulse-red {
-        0% { box-shadow: 0 0 0 0 rgba(255, 61, 0, 0.4); }
-        70% { box-shadow: 0 0 0 10px rgba(255, 61, 0, 0); }
-        100% { box-shadow: 0 0 0 0 rgba(255, 61, 0, 0); }
-    }
-
-    @keyframes fadeUp { 0% { opacity: 0; transform: translateY(30px); } 100% { opacity: 1; transform: translateY(0); } }
-    @media (max-width: 768px) {
-        header { flex-direction: column; gap: 15px; padding: 15px; margin-bottom: 10px; }
-        header div { flex-wrap: wrap; justify-content: center; }
-        header .btn { flex: 1; min-width: 140px; font-size: 13px; padding: 10px; }
-        
-        .hero { padding: 20px 15px 30px; }
-        .hero h1 { font-size: 30px; margin-bottom: 15px; }
-        .hero p { font-size: 16px; margin-bottom: 25px; display: none; } /* Hide long text on mobile */
-        .hero .btn-primary { width: 100%; font-size: 16px; padding: 15px; }
-        
-        .stats { grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 10px; margin-bottom: 30px; }
-        .card { padding: 15px 10px; border-radius: 15px; }
-        .card-icon { font-size: 24px; margin-bottom: 10px; }
-        .card h2 { font-size: 26px; margin-bottom: 5px; }
-        .card p { font-size: 12px; }
-
-        .tabs-container { flex-direction: row; padding: 0 10px; gap: 8px; margin-bottom: 20px; }
-        .tab-btn { flex: 1; padding: 10px; font-size: 12px; justify-content: center; border-radius: 10px; }
-        .tab-btn i { display: none; } /* Hide icons to save space */
-        
-        .debts { padding: 0 10px 40px; }
-        .section-header { flex-direction: column; gap: 15px; margin-bottom: 20px; text-align: center; }
-        .section-header h2 { font-size: 20px; justify-content: center; }
-        
-        div.padding-container { padding: 0 10px !important; }
-        .form-control[placeholder="بحث عن اسم في القائمة الحالية..."] { font-size: 13px; }
-        
-        /* Mobile Table as Cards */
-        .table-container { overflow: visible; border: none; background: transparent; box-shadow: none; }
-        table, thead, tbody, th, td, tr { display: block; width: 100%; }
-        table { min-width: 100%; }
-        thead { display: none; } /* Hide headers */
-        tbody tr { 
-            background: rgba(26, 26, 30, 0.9);
-            border: 1px solid var(--border-color);
-            border-radius: 16px; 
-            margin-bottom: 20px; 
-            padding: 15px; 
+        /* Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 5%;
+            background: rgba(10, 10, 12, 0.8);
             backdrop-filter: var(--glass-blur);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
-        tbody tr:hover { transform: none; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        
-        td { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            padding: 12px 5px !important;
-            border-bottom: 1px dashed rgba(255,255,255,0.08); /* Better separation */
-            font-size: 14px !important;
-            text-align: left;
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
-        td:last-child { border-bottom: none; padding-bottom: 0 !important; margin-top: 10px; }
-        
-        td::before {
-            content: attr(data-label);
+
+        .logo img {
+            height: 48px;
+            width: auto;
+            object-fit: contain;
+            filter: drop-shadow(0 4px 12px rgba(255, 215, 0, 0.4));
+        }
+
+        .logo-text {
+            font-size: 26px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent-primary), #fff);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-family: inherit;
             font-weight: 700;
+            font-size: 15px;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--accent-primary);
+            border: 2px solid var(--accent-primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--accent-primary);
+            color: var(--bg-main);
+            box-shadow: 0 0 20px var(--accent-glow);
+            transform: translateY(-2px);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: var(--bg-main);
+            box-shadow: 0 4px 15px var(--accent-glow);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px var(--accent-glow);
+            filter: brightness(1.1);
+        }
+
+        /* Hero */
+        .hero {
+            text-align: center;
+            padding: 100px 20px 60px;
+            max-width: 800px;
+            margin: 0 auto;
+            animation: fadeUp 1s forwards;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .hero h1 {
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        .hero h1 span {
+            color: var(--accent-primary);
+            position: relative;
+        }
+
+        .hero p {
+            font-size: 20px;
             color: var(--text-secondary);
+            margin-bottom: 40px;
+            font-weight: 400;
+        }
+
+        /* Stats Section */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            padding: 0 5%;
+            margin-bottom: 60px;
+            justify-content: center;
+        }
+
+        .card {
+            background: var(--bg-card);
+            backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--border-color);
+            padding: 35px 25px;
+            border-radius: 20px;
+            text-align: center;
+            transition: all 0.4s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            background: var(--bg-card-hover);
+            border-color: rgba(255, 215, 0, 0.2);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+        }
+
+        .card-icon {
+            font-size: 32px;
+            color: var(--accent-primary);
+            margin-bottom: 15px;
+            opacity: 0.8;
+        }
+
+        .card h2 {
+            font-size: 42px;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 10px;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .card p {
+            color: var(--text-secondary);
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        /* Table */
+        .debts {
+            padding: 0 5% 80px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .debts h2 {
+            font-size: 28px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .debts h2 i {
+            color: var(--accent-primary);
+        }
+
+        .table-container {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: right;
+        }
+
+        thead {
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        th {
+            padding: 20px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 14px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        td {
+            padding: 20px;
+            font-weight: 500;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        tbody tr:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .user-cell {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--accent-glow);
+            color: var(--accent-primary);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: 700;
+        }
+
+        .amount {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .badge {
+            padding: 6px 14px;
+            border-radius: 20px;
             font-size: 13px;
+            font-weight: 700;
+            display: inline-block;
         }
-        
-        .user-cell { display: flex; align-items: center; justify-content: flex-start; gap: 12px; width: 100%; }
-        td:first-child::before { display: none; }
-        td:first-child { 
-            padding-top: 5px !important; 
-            padding-bottom: 15px !important; 
-            border-bottom: 1px solid rgba(255, 215, 0, 0.15); 
-            margin-bottom: 5px;
+
+        .badge.unpaid {
+            background: rgba(255, 215, 0, 0.1);
+            color: var(--accent-primary);
+            border: 1px solid rgba(255, 215, 0, 0.2);
         }
-        .avatar { width: 42px; height: 42px; font-size: 16px; }
-        .amount { font-size: 16px; font-weight: 800; color: var(--text-primary); }
-        .action-btn { width: 40px; height: 40px; font-size: 16px; flex: 1; max-width: 80px; border: 1px solid rgba(255,255,255,0.05); background: rgba(0,0,0,0.2); }
-        .actions { width: 100%; gap: 12px; justify-content: center; }
-        
-        .modal { width: 95%; padding: 20px; border-radius: 16px; margin: 10px; max-height: 85vh; }
-        .modal-header h3 { font-size: 18px; }
-        .close-btn { font-size: 20px; }
-        
-        .form-group label { font-size: 13px; margin-bottom: 5px; }
-        .form-control { padding: 12px; font-size: 14px; }
-        
-        .amount-adjust-group { flex-wrap: wrap; }
-        .amount-adjust-group input { width: 100%; order: -1; margin-bottom: 10px; }
-        .amount-adjust-group button { flex: 1; padding: 10px; font-size: 13px; }
-        
-        .modal-footer { flex-direction: column; gap: 10px; margin-top: 20px; padding-top: 15px; }
-        .modal-footer .btn { width: 100%; justify-content: center; font-size: 14px; padding: 12px; }
-        
-        /* Stats cards specific fixed on mobile */
-        .stats .card:nth-child(1), .stats .card:nth-child(4) { grid-column: span 2; }
-    }
 
-    /* ===== Toast ===== */
-    .toast {
-        position: fixed;
-        bottom: 24px;
-        left: 50%;
-        transform: translateX(-50%) translateY(20px);
-        background: rgba(20, 20, 24, 0.95);
-        color: #fff;
-        padding: 13px 24px;
-        border-radius: 14px;
-        box-shadow: 0 0 0 1px rgba(255,255,255,0.08), 0 8px 24px rgba(0,0,0,0.5);
-        opacity: 0;
-        transition: opacity 0.3s ease, transform 0.3s ease;
-        z-index: 9999;
-        font-size: 15px;
-        font-weight: 600;
-        white-space: nowrap;
-        pointer-events: none;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-    .toast.show {
-        opacity: 1;
-        transform: translateX(-50%) translateY(0);
-    }
-    .toast.success { border-left: 4px solid #00e676; }
-    .toast.error   { border-left: 4px solid #ff3d00; }
-    .toast.info    { border-left: 4px solid var(--accent-primary); }
+        .badge.paid {
+            background: var(--success-bg);
+            color: var(--success);
+            border: 1px solid rgba(0, 230, 118, 0.2);
+        }
 
-    /* ===== Empty State ===== */
-    .empty {
-        text-align: center;
-        padding: 50px 20px;
-        opacity: 0.6;
-        font-size: 16px;
-        color: var(--text-secondary);
-    }
-    .empty i {
-        font-size: 40px;
-        margin-bottom: 12px;
-        display: block;
-        color: var(--accent-primary);
-        opacity: 0.5;
-    }
+        .actions {
+            display: flex;
+            gap: 10px;
+        }
 
-    /* Contact Picker Hover */
-    #pickContactBtn:hover {
-        background: var(--accent-primary) !important;
-        color: var(--bg-main) !important;
-    }
+        .action-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            width: 35px;
+            height: 35px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
 
-    /* Performance Hints */
-    .ambient-glow { will-change: transform; transition: opacity 0.5s; }
-    .hero { will-change: transform, opacity; }
-    .table-container { contain: content; }
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+        }
 
-    @keyframes float { 0% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(50px, 50px, 0); } }
-    @keyframes float-reverse { 0% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(-50px, -50px, 0); } }
-</style>
+        .action-btn.edit:hover {
+            color: var(--accent-primary);
+        }
+
+        .action-btn.delete:hover {
+            color: var(--danger);
+        }
+
+        .action-btn.whatsapp:hover {
+            color: #25D366;
+        }
+
+        /* WhatsApp Green */
+
+        /* Modals */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background: var(--bg-main);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            width: 90%;
+            max-width: 500px;
+            padding: 30px;
+            transform: translateY(30px) scale(0.95);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+            position: relative;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-overlay.active .modal {
+            transform: translateY(0) scale(1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 15px;
+        }
+
+        .modal-header h3 {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--accent-primary);
+        }
+
+        .close-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 24px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .close-btn:hover {
+            color: var(--danger);
+            transform: rotate(90deg);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 14px 18px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 15px;
+            transition: 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            background: rgba(255, 215, 0, 0.05);
+            box-shadow: 0 0 0 4px rgba(255, 215, 0, 0.1);
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .amount-adjust-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .amount-adjust-group input {
+            flex: 1;
+            text-align: center;
+            font-family: 'Outfit';
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .btn-action {
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: 0.3s;
+            font-family: inherit;
+            min-width: 90px;
+        }
+
+        .btn-payment {
+            background: var(--danger-bg);
+            border-color: rgba(255, 61, 0, 0.3);
+            color: var(--danger);
+        }
+
+        .btn-payment:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-invoice {
+            background: var(--success-bg);
+            border-color: rgba(0, 230, 118, 0.3);
+            color: var(--success);
+        }
+
+        .btn-invoice:hover {
+            background: var(--success);
+            color: white;
+        }
+
+        /* Tabs */
+        .tabs-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+            padding: 0 5%;
+            gap: 15px;
+        }
+
+        .tab-btn {
+            padding: 12px 30px;
+            border-radius: 15px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-card);
+            color: var(--text-secondary);
+            font-family: inherit;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .tab-btn.active {
+            background: var(--accent-primary);
+            color: var(--bg-main);
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        .tab-btn:hover:not(.active) {
+            background: var(--bg-card-hover);
+            border-color: rgba(255, 215, 0, 0.3);
+            color: #fff;
+        }
+
+        #factorySection {
+            display: none;
+        }
+
+        /* Edit History List */
+        .history-container {
+            margin-top: 25px;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            max-height: 250px;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .history-item {
+            padding: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .history-date {
+            font-family: 'Outfit';
+            font-size: 13px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .history-val {
+            font-family: 'Outfit';
+            font-weight: 700;
+            font-size: 15px;
+        }
+
+        .history-val.increase {
+            color: var(--success);
+        }
+
+        .history-val.decrease {
+            color: var(--danger);
+        }
+
+        .history-val.neutral {
+            color: var(--accent-primary);
+        }
+
+        .history-note {
+            font-size: 14px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.03);
+            border-right: 3px solid var(--accent-primary);
+            color: #ddd;
+            line-height: 1.4;
+        }
+
+        #receipt-container {
+            display: none;
+        }
+
+        /* Voice Notes Styling */
+        .notes-wrapper {
+            position: relative;
+        }
+
+        .mic-btn {
+            position: absolute;
+            left: 10px;
+            bottom: 10px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.3s;
+            z-index: 5;
+        }
+
+        .mic-btn:hover {
+            color: var(--accent-primary);
+            border-color: var(--accent-primary);
+            background: rgba(255, 215, 0, 0.05);
+        }
+
+        .mic-btn.recording {
+            color: var(--danger);
+            border-color: var(--danger);
+            animation: pulse-red 1.5s infinite;
+            background: rgba(255, 61, 0, 0.1);
+        }
+
+        @keyframes pulse-red {
+            0% {
+                box-shadow: 0 0 0 0 rgba(255, 61, 0, 0.4);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(255, 61, 0, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(255, 61, 0, 0);
+            }
+        }
+
+        @keyframes fadeUp {
+            0% {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 15px;
+                padding: 15px;
+                margin-bottom: 10px;
+            }
+
+            header div {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            header .btn {
+                flex: 1;
+                min-width: 140px;
+                font-size: 13px;
+                padding: 10px;
+            }
+
+            .hero {
+                padding: 20px 15px 30px;
+            }
+
+            .hero h1 {
+                font-size: 30px;
+                margin-bottom: 15px;
+            }
+
+            .hero p {
+                font-size: 16px;
+                margin-bottom: 25px;
+                display: none;
+            }
+
+            /* Hide long text on mobile */
+            .hero .btn-primary {
+                width: 100%;
+                font-size: 16px;
+                padding: 15px;
+            }
+
+            .stats {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+                padding: 0 10px;
+                margin-bottom: 30px;
+            }
+
+            .card {
+                padding: 15px 10px;
+                border-radius: 15px;
+            }
+
+            .card-icon {
+                font-size: 24px;
+                margin-bottom: 10px;
+            }
+
+            .card h2 {
+                font-size: 26px;
+                margin-bottom: 5px;
+            }
+
+            .card p {
+                font-size: 12px;
+            }
+
+            .tabs-container {
+                flex-direction: row;
+                padding: 0 10px;
+                gap: 8px;
+                margin-bottom: 20px;
+            }
+
+            .tab-btn {
+                flex: 1;
+                padding: 10px;
+                font-size: 12px;
+                justify-content: center;
+                border-radius: 10px;
+            }
+
+            .tab-btn i {
+                display: none;
+            }
+
+            /* Hide icons to save space */
+
+            .debts {
+                padding: 0 10px 40px;
+            }
+
+            .section-header {
+                flex-direction: column;
+                gap: 15px;
+                margin-bottom: 20px;
+                text-align: center;
+            }
+
+            .section-header h2 {
+                font-size: 20px;
+                justify-content: center;
+            }
+
+            div.padding-container {
+                padding: 0 10px !important;
+            }
+
+            .form-control[placeholder="بحث عن اسم في القائمة الحالية..."] {
+                font-size: 13px;
+            }
+
+            /* Mobile Table as Cards */
+            .table-container {
+                overflow: visible;
+                border: none;
+                background: transparent;
+                box-shadow: none;
+            }
+
+            table,
+            thead,
+            tbody,
+            th,
+            td,
+            tr {
+                display: block;
+                width: 100%;
+            }
+
+            table {
+                min-width: 100%;
+            }
+
+            thead {
+                display: none;
+            }
+
+            /* Hide headers */
+            tbody tr {
+                background: rgba(26, 26, 30, 0.9);
+                border: 1px solid var(--border-color);
+                border-radius: 16px;
+                margin-bottom: 20px;
+                padding: 15px;
+                backdrop-filter: var(--glass-blur);
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            }
+
+            tbody tr:hover {
+                transform: none;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            }
+
+            td {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 12px 5px !important;
+                border-bottom: 1px dashed rgba(255, 255, 255, 0.08);
+                /* Better separation */
+                font-size: 14px !important;
+                text-align: left;
+            }
+
+            td:last-child {
+                border-bottom: none;
+                padding-bottom: 0 !important;
+                margin-top: 10px;
+            }
+
+            td::before {
+                content: attr(data-label);
+                font-weight: 700;
+                color: var(--text-secondary);
+                font-size: 13px;
+            }
+
+            .user-cell {
+                display: flex;
+                align-items: center;
+                justify-content: flex-start;
+                gap: 12px;
+                width: 100%;
+            }
+
+            td:first-child::before {
+                display: none;
+            }
+
+            td:first-child {
+                padding-top: 5px !important;
+                padding-bottom: 15px !important;
+                border-bottom: 1px solid rgba(255, 215, 0, 0.15);
+                margin-bottom: 5px;
+            }
+
+            .avatar {
+                width: 42px;
+                height: 42px;
+                font-size: 16px;
+            }
+
+            .amount {
+                font-size: 16px;
+                font-weight: 800;
+                color: var(--text-primary);
+            }
+
+            .action-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
+                flex: 1;
+                max-width: 80px;
+                border: 1px solid rgba(255, 255, 255, 0.05);
+                background: rgba(0, 0, 0, 0.2);
+            }
+
+            .actions {
+                width: 100%;
+                gap: 12px;
+                justify-content: center;
+            }
+
+            .modal {
+                width: 95%;
+                padding: 20px;
+                border-radius: 16px;
+                margin: 10px;
+                max-height: 85vh;
+            }
+
+            .modal-header h3 {
+                font-size: 18px;
+            }
+
+            .close-btn {
+                font-size: 20px;
+            }
+
+            .form-group label {
+                font-size: 13px;
+                margin-bottom: 5px;
+            }
+
+            .form-control {
+                padding: 12px;
+                font-size: 14px;
+            }
+
+            .amount-adjust-group {
+                flex-wrap: wrap;
+            }
+
+            .amount-adjust-group input {
+                width: 100%;
+                order: -1;
+                margin-bottom: 10px;
+            }
+
+            .amount-adjust-group button {
+                flex: 1;
+                padding: 10px;
+                font-size: 13px;
+            }
+
+            .modal-footer {
+                flex-direction: column;
+                gap: 10px;
+                margin-top: 20px;
+                padding-top: 15px;
+            }
+
+            .modal-footer .btn {
+                width: 100%;
+                justify-content: center;
+                font-size: 14px;
+                padding: 12px;
+            }
+
+            /* Stats cards specific fixed on mobile */
+            .stats .card:nth-child(1),
+            .stats .card:nth-child(4) {
+                grid-column: span 2;
+            }
+        }
+
+        /* ===== Toast ===== */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: rgba(20, 20, 24, 0.95);
+            color: #fff;
+            padding: 13px 24px;
+            border-radius: 14px;
+            box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 8px 24px rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            z-index: 9999;
+            font-size: 15px;
+            font-weight: 600;
+            white-space: nowrap;
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .toast.success {
+            border-left: 4px solid #00e676;
+        }
+
+        .toast.error {
+            border-left: 4px solid #ff3d00;
+        }
+
+        .toast.info {
+            border-left: 4px solid var(--accent-primary);
+        }
+
+        /* ===== Empty State ===== */
+        .empty {
+            text-align: center;
+            padding: 50px 20px;
+            opacity: 0.6;
+            font-size: 16px;
+            color: var(--text-secondary);
+        }
+
+        .empty i {
+            font-size: 40px;
+            margin-bottom: 12px;
+            display: block;
+            color: var(--accent-primary);
+            opacity: 0.5;
+        }
+
+        /* Contact Picker Hover */
+        #pickContactBtn:hover {
+            background: var(--accent-primary) !important;
+            color: var(--bg-main) !important;
+        }
+
+        /* Performance Hints */
+        .ambient-glow {
+            will-change: transform;
+            transition: opacity 0.5s;
+        }
+
+        .hero {
+            will-change: transform, opacity;
+        }
+
+        .table-container {
+            contain: content;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translate3d(0, 0, 0);
+            }
+
+            100% {
+                transform: translate3d(50px, 50px, 0);
+            }
+        }
+
+        @keyframes float-reverse {
+            0% {
+                transform: translate3d(0, 0, 0);
+            }
+
+            100% {
+                transform: translate3d(-50px, -50px, 0);
+            }
+        }
+    </style>
 </head>
 
 <body>
 
-<div class="ambient-glow"></div>
-<div class="ambient-glow right"></div>
+    <div class="ambient-glow"></div>
+    <div class="ambient-glow right"></div>
 
-<header>
-    <div class="logo">
-        <img src="image.png" alt="A.D Logo" decoding="async">
-        <span class="logo-text">DebtManager</span>
-    </div>
-    <div style="display: flex; gap: 10px;">
-        <button class="btn btn-outline" style="border-color: #25D366; color: #25D366;" onclick="openModal('quickWhatsAppModal')">
-            <i class="fab fa-whatsapp"></i> واتساب سريع
+    <header>
+        <div class="logo">
+            <img src="image.png" alt="A.D Logo" decoding="async">
+            <span class="logo-text">DebtManager</span>
+        </div>
+        <div style="display: flex; gap: 10px;">
+            <button class="btn btn-outline" style="border-color: #25D366; color: #25D366;"
+                onclick="openModal('quickWhatsAppModal')">
+                <i class="fab fa-whatsapp"></i> واتساب سريع
+            </button>
+            <button class="btn btn-outline" id="authBtn" onclick="openModal('loginModal')">
+                <i class="fas fa-user-circle"></i> تسجيل الدخول
+            </button>
+        </div>
+    </header>
+
+    <section class="hero">
+        <h1>إدارة ديونك <span>بكل سهولة واحترافية</span></h1>
+        <p>تصدير إيصالات PDF، تتبع الديون، وتعديل الحسابات بضغطة زر واحدة.</p>
+        <button class="btn btn-primary" onclick="openAdd()"><i class="fas fa-plus"></i> إضــــافة ديــن جديـد</button>
+    </section>
+
+    <section class="stats">
+        <div class="card">
+            <div class="card-icon"><i class="fas fa-users"></i></div>
+            <h2 id="stat-total-users">0</h2>
+            <p>عدد العملاء</p>
+        </div>
+        <div class="card">
+            <div class="card-icon"><i class="fas fa-money-bill-wave"></i></div>
+            <h2 class="amount" id="stat-total-debt" style="color:var(--accent-primary)">0</h2>
+            <p>مستحقات الزبائن (جنيه)</p>
+        </div>
+        <div class="card">
+            <div class="card-icon"><i class="fas fa-factory"></i></div>
+            <h2 class="amount" id="stat-total-factory" style="color:var(--danger)">0</h2>
+            <p>مديونات المصنع (جنيه)</p>
+        </div>
+        <div class="card">
+            <div class="card-icon"><i class="fas fa-check-circle" style="color:var(--success)"></i></div>
+            <h2 class="amount" id="stat-total-paid" style="color:var(--success)">0</h2>
+            <p>حسابات مسددة</p>
+        </div>
+    </section>
+
+    <div class="tabs-container">
+        <button id="customerTab" class="tab-btn active" onclick="switchTab('customer')">
+            <i class="fas fa-users"></i> الزبائن (الفلوس اللي ليا)
         </button>
-        <button class="btn btn-outline" id="authBtn" onclick="openModal('loginModal')">
-            <i class="fas fa-user-circle"></i> تسجيل الدخول
+        <button id="factoryTab" class="tab-btn" onclick="switchTab('factory')">
+            <i class="fas fa-industry"></i> المصنع (الفلوس اللي عليا)
         </button>
     </div>
-</header>
 
-<section class="hero">
-    <h1>إدارة ديونك <span>بكل سهولة واحترافية</span></h1>
-    <p>تصدير إيصالات PDF، تتبع الديون، وتعديل الحسابات بضغطة زر واحدة.</p>
-    <button class="btn btn-primary" onclick="openAdd()"><i class="fas fa-plus"></i> إضــــافة ديــن جديـد</button>
-</section>
-
-<section class="stats">
-    <div class="card">
-        <div class="card-icon"><i class="fas fa-users"></i></div>
-        <h2 id="stat-total-users">0</h2><p>عدد العملاء</p>
-    </div>
-    <div class="card">
-        <div class="card-icon"><i class="fas fa-money-bill-wave"></i></div>
-        <h2 class="amount" id="stat-total-debt" style="color:var(--accent-primary)">0</h2><p>مستحقات الزبائن (جنيه)</p>
-    </div>
-    <div class="card">
-        <div class="card-icon"><i class="fas fa-factory"></i></div>
-        <h2 class="amount" id="stat-total-factory" style="color:var(--danger)">0</h2><p>مديونات المصنع (جنيه)</p>
-    </div>
-    <div class="card">
-        <div class="card-icon"><i class="fas fa-check-circle" style="color:var(--success)"></i></div>
-        <h2 class="amount" id="stat-total-paid" style="color:var(--success)">0</h2><p>حسابات مسددة</p>
-    </div>
-</section>
-
-<div class="tabs-container">
-    <button id="customerTab" class="tab-btn active" onclick="switchTab('customer')">
-        <i class="fas fa-users"></i> الزبائن (الفلوس اللي ليا)
-    </button>
-    <button id="factoryTab" class="tab-btn" onclick="switchTab('factory')">
-        <i class="fas fa-industry"></i> المصنع (الفلوس اللي عليا)
-    </button>
-</div>
-
-<!-- Shared Search Bar -->
-<div style="padding: 0 5%; margin-bottom: 20px;">
-    <div style="position: relative; max-width: 400px; margin: 0 auto;">
-        <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="بحث عن اسم في القائمة الحالية..." class="form-control" style="padding-right:35px; text-align: center;">
-        <i class="fas fa-search" style="position: absolute; right: 15px; top: 15px; color: var(--text-secondary);"></i>
-    </div>
-</div>
-
-<section class="debts" id="customerSection">
-    <div class="section-header">
-        <h2><i class="fas fa-list-alt"></i> قائمة الزبائن</h2>
-    </div>
-    <div class="table-container">
-        <table>
-            <thead>
-                <tr>
-                    <th>الاسم</th>
-                    <th>المبلغ</th>
-                    <th>آخر تعديل</th>
-                    <th>الملاحظات</th>
-                    <th>الحالة</th>
-                    <th>إجراءات</th>
-                </tr>
-            </thead>
-            <tbody id="customerTableBody"> <!-- Rows injected via JS --> </tbody>
-        </table>
-    </div>
-</section>
-
-<section class="debts" id="factorySection">
-    <div class="section-header">
-        <h2><i class="fas fa-industry"></i> قائمة مديونات المصنع</h2>
-    </div>
-    <div class="table-container">
-        <table>
-            <thead>
-                <tr>
-                    <th>الاسم</th>
-                    <th>المبلغ</th>
-                    <th>آخر تعديل</th>
-                    <th>الملاحظات</th>
-                    <th>الحالة</th>
-                    <th>إجراءات</th>
-                </tr>
-            </thead>
-            <tbody id="factoryTableBody"> <!-- Rows injected via JS --> </tbody>
-        </table>
-    </div>
-</section>
-
-<!-- Add Debt Modal -->
-<div class="modal-overlay" id="addModal">
-    <div class="modal">
-        <div class="modal-header">
-            <h3>إضافة دين جديد</h3>
-            <button class="close-btn" onclick="closeModal('addModal')"><i class="fas fa-times"></i></button>
-        </div>
-        <div class="modal-body">
-            <div class="form-group">
-                <label>نوع الحساب</label>
-                <div style="display: flex; gap: 20px;">
-                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                        <input type="radio" name="accountType" value="customer" checked> زبون (لي فلوس)
-                    </label>
-                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                        <input type="radio" name="accountType" value="factory"> مصنع (عليّ فلوس)
-                    </label>
-                </div>
-            </div>
-            <div class="form-group">
-                <label style="display: flex; justify-content: space-between; align-items: center;">
-                    الاسم الكامل
-                    <button id="pickContactBtn" onclick="selectContact()" style="background: rgba(255,215,0,0.1); border: 1px solid var(--accent-primary); color: var(--accent-primary); cursor: pointer; font-size: 11px; padding: 4px 10px; border-radius: 8px; font-weight: bold; display: flex; align-items: center; gap: 4px; transition: 0.3s;">
-                        <i class="fas fa-address-book"></i> اختيار من الجهاز
-                    </button>
-                </label>
-                <input type="text" id="addName" placeholder="أدخل اسم الشخص أو المصنع" class="form-control">
-            </div>
-            <div class="form-group">
-                <label>رقم الهاتف (للواتساب)</label>
-                <input type="text" id="addPhone" placeholder="مثل: 201234567890" class="form-control">
-            </div>
-            <div class="form-group">
-                <label>تاريخ المعاملة</label>
-                <input type="date" id="addDate" class="form-control">
-            </div>
-            <div class="form-group">
-                <label>المبلغ الافتتاحي (جنيه)</label>
-                <input type="number" id="addAmount" placeholder="0.00" class="form-control">
-            </div>
-            <div class="form-group">
-                <label>الملاحظات والتفاصيل</label>
-                <div class="notes-wrapper">
-                    <textarea id="addNotes" rows="2" placeholder="اكتب أية تفاصيل..." class="form-control"></textarea>
-                    <button class="mic-btn" onclick="toggleVoice('addNotes', this)" title="إملاء صوتي">
-                        <i class="fas fa-microphone"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-        <div class="modal-footer">
-            <button class="btn btn-outline" style="border-color: var(--danger); color: var(--danger); flex: 1;" onclick="generatePDF('add')">
-                <i class="fas fa-file-pdf"></i> تحميل كـ PDF
-            </button>
-            <button class="btn btn-primary" style="flex: 2;" onclick="saveNewDebt()">
-                <i class="fas fa-save"></i> حفظ الدين
-            </button>
+    <!-- Shared Search Bar -->
+    <div style="padding: 0 5%; margin-bottom: 20px;">
+        <div style="position: relative; max-width: 400px; margin: 0 auto;">
+            <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="بحث عن اسم في القائمة الحالية..."
+                class="form-control" style="padding-right:35px; text-align: center;">
+            <i class="fas fa-search"
+                style="position: absolute; right: 15px; top: 15px; color: var(--text-secondary);"></i>
         </div>
     </div>
-</div>
 
-<!-- Edit Debt Modal -->
-<div class="modal-overlay" id="editModal">
-    <div class="modal">
-        <div class="modal-header">
-            <h3>تعديل حساب: <span id="editUserName" style="color:#fff;"></span></h3>
-            <button class="close-btn" onclick="closeModal('editModal')"><i class="fas fa-times"></i></button>
+    <section class="debts" id="customerSection">
+        <div class="section-header">
+            <h2><i class="fas fa-list-alt"></i> قائمة الزبائن</h2>
         </div>
-        <div class="modal-body">
-            <div class="form-group">
-                <label>رقم الهاتف (واتساب)</label>
-                <input type="text" id="editPhone" placeholder="مثل: 201234567890" class="form-control">
-            </div>
-            <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); padding: 15px; border-radius: 12px; margin-bottom: 20px; text-align: center;">
-                <p style="color: var(--text-secondary); margin-bottom: 5px; font-size: 14px;">إجمالي الدين الحالي</p>
-                <h2 id="editCurrentAmount" style="font-family: 'Outfit'; font-size: 32px; color: var(--accent-primary);">0</h2>
-            </div>
-            
-            <div class="form-group">
-                <label>تاريخ التعديل (المعاملة الجديدة)</label>
-                <input type="date" id="editDate" class="form-control">
-            </div>
-            
-            <div class="form-group">
-                <label>تعديل المبلغ (اختر "فاتورة" للزيادة أو "دفعة" للخصم)</label>
-                <div class="amount-adjust-group">
-                    <button class="btn-action btn-payment" onclick="adjustAmountInput('subtract')">دفعة (-)</button>
-                    <input type="number" id="editAdjustment" placeholder="0.00" class="form-control">
-                    <button class="btn-action btn-invoice" onclick="adjustAmountInput('add')">فاتورة (+)</button>
-                </div>
-            </div>
-            
-            <div class="form-group">
-                <label>ملاحظات المعاملة الحالية</label>
-                <div class="notes-wrapper">
-                    <textarea id="editNotes" rows="2" placeholder="مثال: فاتورة بضاعة جديدة، دفعة من الحساب..." class="form-control"></textarea>
-                    <button class="mic-btn" onclick="toggleVoice('editNotes', this)" title="إملاء صوتي">
-                        <i class="fas fa-microphone"></i>
-                    </button>
-                </div>
-            </div>
-
-            <!-- History Section -->
-            <div class="form-group">
-                <label style="color: var(--accent-primary);"><i class="fas fa-history"></i> سـجل المعاملات والتعديلات السابقة</label>
-                <div class="history-container" id="editHistoryList">
-                    <!-- History injected here -->
-                </div>
-            </div>
-
-        </div>
-        <div class="modal-footer">
-            <button class="btn btn-outline" style="border-color: var(--danger); color: var(--danger); flex: 1;" onclick="generatePDF('edit')">
-                <i class="fas fa-file-pdf"></i> إيصال المعاملة
-            </button>
-            <button class="btn btn-primary" style="flex: 1;" onclick="saveEdit()">
-                <i class="fas fa-check-circle"></i> حفظ التحديث
-            </button>
-        </div>
-    </div>
-</div>
-
-<!-- Quick WhatsApp Modal -->
-<div class="modal-overlay" id="quickWhatsAppModal">
-    <div class="modal">
-        <div class="modal-header">
-            <h3>محادثة واتساب سريعة</h3>
-            <button class="close-btn" onclick="closeModal('quickWhatsAppModal')"><i class="fas fa-times"></i></button>
-        </div>
-        <div class="modal-body">
-            <div class="form-group">
-                <label>أدخل رقم الهاتف (مع رمز الدولة)</label>
-                <input type="text" id="quickPhone" placeholder="مثل: 201234567890" class="form-control" style="text-align: center; font-size: 20px; letter-spacing: 2px;">
-                <p style="font-size: 12px; color: var(--text-secondary); margin-top: 10px; text-align: center;">سيتم فتح محادثة مباشرة دون الحاجة لحفظ الرقم في جهات الاتصال.</p>
-            </div>
-        </div>
-        <div class="modal-footer">
-            <button class="btn btn-primary" style="background: #25D366; border: none; width: 100%;" onclick="startQuickChat()">
-                <i class="fab fa-whatsapp"></i> ابدأ المحادثة الآن
-            </button>
-        </div>
-    </div>
-</div>
-
-<!-- Login Modal -->
-<div class="modal-overlay" id="loginModal">
-    <div class="modal">
-        <div class="modal-header">
-            <h3>تسجيل الدخول / إنشاء حساب</h3>
-            <button class="close-btn" onclick="closeModal('loginModal')"><i class="fas fa-times"></i></button>
-        </div>
-        <div class="modal-body">
-            <div class="form-group">
-                <label>اسم المستخدم</label>
-                <input type="text" id="usernameInput" placeholder="أدخل اسمك الخاص" class="form-control" style="text-align: center; font-size: 18px;">
-            </div>
-            <div style="text-align: center; color: var(--text-secondary); font-size: 13px; line-height: 1.5; margin-bottom: 20px;">
-                سيتم حفظ بيانات ديونك بناءً على هذا الاسم.<br>إذا كان الاسم غير مسجل مسبقاً، سيتم إنشاء حساب جديد.
-            </div>
-            <button class="btn btn-primary" style="width: 100%; margin-bottom: 20px;" onclick="loginUser()">
-                <i class="fas fa-sign-in-alt"></i> دخول للحساب
-            </button>
-
-            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
-                <div style="flex: 1; height: 1px; background: var(--border-color);"></div>
-                <span style="color: var(--text-secondary); font-size: 12px;">أو عبر جوجل</span>
-                <div style="flex: 1; height: 1px; background: var(--border-color);"></div>
-            </div>
-
-            <!-- Google Sign-In Button Container -->
-            <div id="googleBtnContainer" style="display: flex; justify-content: center; width: 100%;">
-                <div id="g_id_onload"
-                     data-client_id="619423852215-f0v8tejfmuii9f4lvakoqve7htrbvlhh.apps.googleusercontent.com"
-                     data-callback="handleCredentialResponse"
-                     data-auto_prompt="false">
-                </div>
-                <div class="g_id_signin"
-                     data-type="standard"
-                     data-size="large"
-                     data-theme="filled_black"
-                     data-text="signin_with"
-                     data-shape="rectangular"
-                     data-logo_alignment="left">
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Hidden PDF Receipt Template - Ultra Professional Version -->
-<div id="receipt-container" style="position: absolute; left: -9999px; top: -9999px;">
-    <div id="receipt" style="padding: 0; background: #fff; color: #1a1a1a; direction: rtl; font-family: 'Tajawal', 'Segoe UI', Arial, sans-serif; width: 800px; border: 1px solid #ddd; line-height: 1.6; text-rendering: optimizeLegibility;">
-        
-        <!-- Top Accent Bar -->
-        <div style="height: 12px; background: linear-gradient(90deg, #ccac00, #ffeb3b, #ccac00);"></div>
-
-        <div style="padding: 40px;">
-            <!-- Header Section -->
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; border-bottom: 1px solid #eee; padding-bottom: 30px;">
-                <div style="text-align: right;">
-                    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px;">
-                        <span style="background: #000; color: #ccac00; padding: 10px 15px; border-radius: 8px; font-weight: 900; font-size: 24px;">DM</span>
-                        <div>
-                            <h1 style="margin: 0; font-size: 28px; font-weight: 900; color: #000; letter-spacing: 1px;">DebtManager</h1>
-                            <p style="margin: 0; font-size: 14px; color: #666; font-weight: 700;">نظام الإدارة المالية المتقدمة</p>
-                        </div>
-                    </div>
-                </div>
-                <div style="text-align: left; direction: ltr;">
-                    <h2 style="margin: 0 0 10px 0; font-size: 22px; font-weight: 800; color: #ccac00; text-transform: uppercase;">Statement / كشف حساب</h2>
-                    <div style="font-size: 12px; color: #888; font-weight: 600;">
-                        REFERENCE: #<span id="r-ref" style="font-family: 'Outfit'; color: #000;"></span><br>
-                        DATE: <span id="r-date" style="color: #000;"></span> | TIME: <span id="r-time" style="font-family: 'Outfit'; color: #000;"></span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Entities Info -->
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 40px;">
-                <div style="padding: 20px; border: 1px solid #eee; border-radius: 12px; background: #fafafa;">
-                    <p style="margin: 0 0 10px 0; font-size: 11px; font-weight: 800; color: #ccac00; text-transform: uppercase;">إلى السيد / السادة | TO CUSTOMER:</p>
-                    <h3 style="margin: 0; font-size: 22px; font-weight: 800; color: #000;" id="r-name">---</h3>
-                    <div style="margin-top: 10px; font-size: 14px; color: #555;">
-                        <i class="fas fa-phone"></i> رقم الهاتف: <span id="r-phone" style="font-family: 'Outfit'; font-weight: 700;">---</span>
-                    </div>
-                </div>
-                <div style="padding: 20px; border: 1px solid #eee; border-radius: 12px; display: flex; flex-direction: column; justify-content: center;">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px dashed #ddd; padding-bottom: 8px;">
-                        <span style="font-size: 13px; color: #666;">نوع الحساب:</span>
-                        <span style="font-size: 14px; font-weight: 800; color: #000;" id="r-type">---</span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between;">
-                        <span style="font-size: 13px; color: #666;">حالة الحساب:</span>
-                        <span style="font-size: 13px; font-weight: 700; color: #28a745;">نشط ومعتمد</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Financial Summary Card -->
-            <div style="background: #000; border-radius: 20px; padding: 40px; margin-bottom: 45px; position: relative; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.1);">
-                <!-- Decorative element -->
-                <div style="position: absolute; top: -50px; left: -50px; width: 150px; height: 150px; background: rgba(204, 172, 0, 0.1); border-radius: 50%;"></div>
-                
-                <div style="position: relative; z-index: 1; display: flex; justify-content: space-between; align-items: center;">
-                    <div style="text-align: right;">
-                        <h4 style="margin: 0; color: #ccac00; font-size: 14px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px;">إجمالي الرصيد المستحق للهذا الحساب</h4>
-                        <div style="font-size: 56px; font-weight: 900; color: #fff; font-family: 'Outfit';">
-                            <span id="r-amount">0.00</span> <small style="font-size: 20px; font-weight: 400; color: #888;">EGP</small>
-                        </div>
-                    </div>
-                    <div style="text-align: left;">
-                         <img id="r-qr" src="" width="110" height="110" style="border: 5px solid #fff; border-radius: 12px; background: #fff;">
-                    </div>
-                </div>
-                <div style="margin-top: 25px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;">
-                    <p style="margin: 0; font-size: 15px; color: #aaa;">
-                        المبلغ بالحروف: <span id="r-amount-text" style="color: #fff; font-weight: 800;">---</span> جنيه مصري لا غير.
-                    </p>
-                </div>
-            </div>
-
-            <!-- Detailed Transactions Header -->
-            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
-                <div style="width: 5px; height: 30px; background: #ccac00; border-radius: 2px;"></div>
-                <h3 style="margin: 0; font-size: 18px; font-weight: 800; color: #000;">سجل الحركات المالية الموثقة</h3>
-            </div>
-
-            <!-- Transaction Table -->
-            <table style="width: 100%; border-collapse: separate; border-spacing: 0; margin-bottom: 40px; border: 1px solid #eee; border-radius: 12px; overflow: hidden;">
+        <div class="table-container">
+            <table>
                 <thead>
-                    <tr style="background: #f8f9fa;">
-                        <th style="padding: 15px; text-align: right; font-size: 12px; color: #666; font-weight: 800; border-bottom: 2px solid #eee;">التاريخ</th>
-                        <th style="padding: 15px; text-align: right; font-size: 12px; color: #666; font-weight: 800; border-bottom: 2px solid #eee;">النوع</th>
-                        <th style="padding: 15px; text-align: right; font-size: 12px; color: #666; font-weight: 800; border-bottom: 2px solid #eee;">البيان التفصيلي</th>
-                        <th style="padding: 15px; text-align: center; font-size: 12px; color: #666; font-weight: 800; border-bottom: 2px solid #eee;">القيمة</th>
+                    <tr>
+                        <th>الاسم</th>
+                        <th>المبلغ</th>
+                        <th>آخر تعديل</th>
+                        <th>الملاحظات</th>
+                        <th>الحالة</th>
+                        <th>إجراءات</th>
                     </tr>
                 </thead>
-                <tbody id="r-history-body">
-                    <!-- Dynamic Rows -->
-                </tbody>
+                <tbody id="dataRows"> <!-- Rows injected via JS --> </tbody>
             </table>
+        </div>
+    </section>
 
-            <!-- Footnote Section -->
-            <div style="display: grid; grid-template-columns: 1fr 200px; gap: 40px; align-items: flex-start; margin-top: 30px;">
-                <div style="background: #fdfdfd; padding: 20px; border-radius: 12px; border: 1px dashed #ddd;">
-                    <h5 style="margin: 0 0 10px 0; font-size: 13px; color: #333; font-weight: 800;">ملاحظات وشروط:</h5>
-                    <p id="r-notes" style="margin: 0; font-size: 13px; color: #666; line-height: 1.6;">
-                        يرجى مراجعة الحساب في غضون 48 ساعة من تاريخ الاستلام في حال وجود أي استفسار.
-                    </p>
+    <section class="debts" id="factorySection">
+        <div class="section-header">
+            <h2><i class="fas fa-industry"></i> قائمة مديونات المصنع</h2>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>الاسم</th>
+                        <th>المبلغ</th>
+                        <th>آخر تعديل</th>
+                        <th>الملاحظات</th>
+                        <th>الحالة</th>
+                        <th>إجراءات</th>
+                    </tr>
+                </thead>
+                <tbody id="factoryTableBody"> <!-- Rows injected via JS --> </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- Add Debt Modal -->
+    <div class="modal-overlay" id="addModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>إضافة دين جديد</h3>
+                <button class="close-btn" onclick="closeModal('addModal')"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>نوع الحساب</label>
+                    <div style="display: flex; gap: 20px;">
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="radio" name="accountType" value="customer" checked> زبون (لي فلوس)
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="radio" name="accountType" value="factory"> مصنع (عليّ فلوس)
+                        </label>
+                    </div>
                 </div>
-                <div style="text-align: center; display: flex; flex-direction: column; gap: 15px;">
-                    <a id="r-wa-link" href="#" style="background: #25D366; color: #fff; padding: 12px; border-radius: 12px; text-decoration: none; font-weight: 800; font-size: 14px; display: block; box-shadow: 0 4px 15px rgba(37, 211, 102, 0.2);">
-                        <i class="fab fa-whatsapp"></i> ارسال عبر الواتس
-                    </a>
-                    <div style="padding-top: 20px; border-top: 1px solid #eee; font-size: 11px; color: #999;">
-                        توقيع المحاسب إلكترونياً
+                <div class="form-group">
+                    <label style="display: flex; justify-content: space-between; align-items: center;">
+                        الاسم الكامل
+                        <button id="pickContactBtn" onclick="selectContact()"
+                            style="background: rgba(255,215,0,0.1); border: 1px solid var(--accent-primary); color: var(--accent-primary); cursor: pointer; font-size: 11px; padding: 4px 10px; border-radius: 8px; font-weight: bold; display: flex; align-items: center; gap: 4px; transition: 0.3s;">
+                            <i class="fas fa-address-book"></i> اختيار من الجهاز
+                        </button>
+                    </label>
+                    <input type="text" id="pName" placeholder="أدخل اسم الشخص أو المصنع" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>رقم الهاتف (للواتساب)</label>
+                    <input type="text" id="addPhone" placeholder="مثل: 201234567890" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>تاريخ المعاملة</label>
+                    <input type="date" id="addDate" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>المبلغ الافتتاحي (جنيه)</label>
+                    <input type="number" id="pAmount" placeholder="0.00" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>الملاحظات والتفاصيل</label>
+                    <div class="notes-wrapper">
+                        <textarea id="addNotes" rows="2" placeholder="اكتب أية تفاصيل..."
+                            class="form-control"></textarea>
+                        <button class="mic-btn" onclick="toggleVoice('addNotes', this)" title="إملاء صوتي">
+                            <i class="fas fa-microphone"></i>
+                        </button>
                     </div>
                 </div>
             </div>
-
-            <!-- Brand Footer -->
-            <div style="margin-top: 60px; text-align: center; border-top: 1px solid #eee; padding-top: 20px;">
-                <p style="margin: 0; font-size: 11px; color: #bbb; font-weight: 400; letter-spacing: 0.5px;">
-                    تم إنشاء هذا التقرير آلياً بواسطة نظام <span style="color: #ccac00; font-weight: 800;">DebtManager PRO</span> لعام 2026.
-                </p>
-                <p style="margin: 5px 0 0 0; font-size: 10px; color: #ccc;">
-                    CONFIDENTIAL & SECURE FINANCIAL STATEMENT
-                </p>
+            <div class="modal-footer">
+                <button class="btn btn-outline" style="border-color: var(--danger); color: var(--danger); flex: 1;"
+                    onclick="generatePDF('add')">
+                    <i class="fas fa-file-pdf"></i> تحميل كـ PDF
+                </button>
+                <button id="saveBtn" class="btn btn-primary" style="flex: 2;" onclick="saveNewDebt()">
+                    <i class="fas fa-save"></i> حفظ الدين
+                </button>
             </div>
         </div>
     </div>
-</div>
 
-<script type="text/javascript">
-    function openAdd() {
-        document.getElementById('addDate').value = new Date().toISOString().split('T')[0];
-        openModal('addModal');
-    }
+    <!-- Edit Debt Modal -->
+    <div class="modal-overlay" id="editModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>تعديل حساب: <span id="editUserName" style="color:#fff;"></span></h3>
+                <button class="close-btn" onclick="closeModal('editModal')"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>رقم الهاتف (واتساب)</label>
+                    <input type="text" id="editPhone" placeholder="مثل: 201234567890" class="form-control">
+                </div>
+                <div
+                    style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); padding: 15px; border-radius: 12px; margin-bottom: 20px; text-align: center;">
+                    <p style="color: var(--text-secondary); margin-bottom: 5px; font-size: 14px;">إجمالي الدين الحالي
+                    </p>
+                    <h2 id="editCurrentAmount"
+                        style="font-family: 'Outfit'; font-size: 32px; color: var(--accent-primary);">0</h2>
+                </div>
 
-    let currentEditId = null;
-    let currentUser = localStorage.getItem('debtManager_user') || null;
-    let debts = [];
-    let _firebaseReady = false;
+                <div class="form-group">
+                    <label>تاريخ التعديل (المعاملة الجديدة)</label>
+                    <input type="date" id="editDate" class="form-control">
+                </div>
 
-    // ======================================================
-    // Firebase Realtime Database — Per-Record Operations
-    // Each debt is stored individually:
-    //   users/{safeEmail}/debts/{firebasePushKey} = { ...debtObject }
-    // ======================================================
+                <div class="form-group">
+                    <label>تعديل المبلغ (اختر "فاتورة" للزيادة أو "دفعة" للخصم)</label>
+                    <div class="amount-adjust-group">
+                        <button class="btn-action btn-payment" onclick="adjustAmountInput('subtract')">دفعة (-)</button>
+                        <input type="number" id="editAdjustment" placeholder="0.00" class="form-control">
+                        <button class="btn-action btn-invoice" onclick="adjustAmountInput('add')">فاتورة (+)</button>
+                    </div>
+                </div>
 
-    // Safe getter — waits until the module script has populated window._firebase
-    function getFS() { return window._firebase || null; }
+                <div class="form-group">
+                    <label>ملاحظات المعاملة الحالية</label>
+                    <div class="notes-wrapper">
+                        <textarea id="editNotes" rows="2" placeholder="مثال: فاتورة بضاعة جديدة، دفعة من الحساب..."
+                            class="form-control"></textarea>
+                        <button class="mic-btn" onclick="toggleVoice('editNotes', this)" title="إملاء صوتي">
+                            <i class="fas fa-microphone"></i>
+                        </button>
+                    </div>
+                </div>
 
-    // RTDB keys cannot contain '.', so replace with ',' in email
-    function userKey(email) { return email.replace(/\./g, ','); }
+                <!-- History Section -->
+                <div class="form-group">
+                    <label style="color: var(--accent-primary);"><i class="fas fa-history"></i> سـجل المعاملات
+                        والتعديلات السابقة</label>
+                    <div class="history-container" id="editHistoryList">
+                        <!-- History injected here -->
+                    </div>
+                </div>
 
-    // Returns the RTDB ref for the debts list of the current user
-    function debtsRef() {
-        const fb = getFS();
-        return fb ? fb.ref(fb.db, `users/${userKey(currentUser)}/debts`) : null;
-    }
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" style="border-color: var(--danger); color: var(--danger); flex: 1;"
+                    onclick="generatePDF('edit')">
+                    <i class="fas fa-file-pdf"></i> إيصال المعاملة
+                </button>
+                <button class="btn btn-primary" style="flex: 1;" onclick="saveEdit()">
+                    <i class="fas fa-check-circle"></i> حفظ التحديث
+                </button>
+            </div>
+        </div>
+    </div>
 
-    // Returns the RTDB ref for a SINGLE debt by its Firebase key (= debt.id)
-    function debtRef(id) {
-        const fb = getFS();
-        return fb ? fb.ref(fb.db, `users/${userKey(currentUser)}/debts/${id}`) : null;
-    }
+    <!-- Quick WhatsApp Modal -->
+    <div class="modal-overlay" id="quickWhatsAppModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>محادثة واتساب سريعة</h3>
+                <button class="close-btn" onclick="closeModal('quickWhatsAppModal')"><i
+                        class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>أدخل رقم الهاتف (مع رمز الدولة)</label>
+                    <input type="text" id="quickPhone" placeholder="مثل: 201234567890" class="form-control"
+                        style="text-align: center; font-size: 20px; letter-spacing: 2px;">
+                    <p style="font-size: 12px; color: var(--text-secondary); margin-top: 10px; text-align: center;">سيتم
+                        فتح محادثة مباشرة دون الحاجة لحفظ الرقم في جهات الاتصال.</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" style="background: #25D366; border: none; width: 100%;"
+                    onclick="startQuickChat()">
+                    <i class="fab fa-whatsapp"></i> ابدأ المحادثة الآن
+                </button>
+            </div>
+        </div>
+    </div>
 
-    // Push a NEW debt to RTDB using push() — returns the generated Firebase key
-    async function pushDebtToRTDB(debt) {
-        const fb = getFS();
-        if (!fb || !currentUser) return null;
-        try {
-            const listRef = debtsRef();
-            const newRef  = fb.push(listRef);   // generates a unique key
-            await fb.set(newRef, debt);
-            return newRef.key;                   // return the Firebase key as the debt id
-        } catch (e) {
-            console.error('RTDB push error:', e);
-            return null;
+    <!-- Login Modal -->
+    <div class="modal-overlay" id="loginModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>تسجيل الدخول / إنشاء حساب</h3>
+                <button class="close-btn" onclick="closeModal('loginModal')"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>اسم المستخدم</label>
+                    <input type="text" id="usernameInput" placeholder="أدخل اسمك الخاص" class="form-control"
+                        style="text-align: center; font-size: 18px;">
+                </div>
+                <div
+                    style="text-align: center; color: var(--text-secondary); font-size: 13px; line-height: 1.5; margin-bottom: 20px;">
+                    سيتم حفظ بيانات ديونك بناءً على هذا الاسم.<br>إذا كان الاسم غير مسجل مسبقاً، سيتم إنشاء حساب جديد.
+                </div>
+                <button class="btn btn-primary" style="width: 100%; margin-bottom: 20px;" onclick="loginUser()">
+                    <i class="fas fa-sign-in-alt"></i> دخول للحساب
+                </button>
+
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+                    <div style="flex: 1; height: 1px; background: var(--border-color);"></div>
+                    <span style="color: var(--text-secondary); font-size: 12px;">أو عبر جوجل</span>
+                    <div style="flex: 1; height: 1px; background: var(--border-color);"></div>
+                </div>
+
+                <!-- Google Sign-In Button Container -->
+                <div id="googleBtnContainer" style="display: flex; justify-content: center; width: 100%;">
+                    <div id="g_id_onload"
+                        data-client_id="619423852215-f0v8tejfmuii9f4lvakoqve7htrbvlhh.apps.googleusercontent.com"
+                        data-callback="handleCredentialResponse" data-auto_prompt="false">
+                    </div>
+                    <div class="g_id_signin" data-type="standard" data-size="large" data-theme="filled_black"
+                        data-text="signin_with" data-shape="rectangular" data-logo_alignment="left">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden PDF Receipt Template - Ultra Professional Version -->
+    <div id="receipt-container" style="position: absolute; left: -9999px; top: -9999px;">
+        <div id="receipt"
+            style="padding: 0; background: #fff; color: #1a1a1a; direction: rtl; font-family: 'Tajawal', 'Segoe UI', Arial, sans-serif; width: 800px; border: 1px solid #ddd; line-height: 1.6; text-rendering: optimizeLegibility;">
+
+            <!-- Top Accent Bar -->
+            <div style="height: 12px; background: linear-gradient(90deg, #ccac00, #ffeb3b, #ccac00);"></div>
+
+            <div style="padding: 40px;">
+                <!-- Header Section -->
+                <div
+                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; border-bottom: 1px solid #eee; padding-bottom: 30px;">
+                    <div style="text-align: right;">
+                        <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px;">
+                            <span
+                                style="background: #000; color: #ccac00; padding: 10px 15px; border-radius: 8px; font-weight: 900; font-size: 24px;">DM</span>
+                            <div>
+                                <h1
+                                    style="margin: 0; font-size: 28px; font-weight: 900; color: #000; letter-spacing: 1px;">
+                                    DebtManager</h1>
+                                <p style="margin: 0; font-size: 14px; color: #666; font-weight: 700;">نظام الإدارة
+                                    المالية المتقدمة</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="text-align: left; direction: ltr;">
+                        <h2
+                            style="margin: 0 0 10px 0; font-size: 22px; font-weight: 800; color: #ccac00; text-transform: uppercase;">
+                            Statement / كشف حساب</h2>
+                        <div style="font-size: 12px; color: #888; font-weight: 600;">
+                            REFERENCE: #<span id="r-ref" style="font-family: 'Outfit'; color: #000;"></span><br>
+                            DATE: <span id="r-date" style="color: #000;"></span> | TIME: <span id="r-time"
+                                style="font-family: 'Outfit'; color: #000;"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Entities Info -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 40px;">
+                    <div style="padding: 20px; border: 1px solid #eee; border-radius: 12px; background: #fafafa;">
+                        <p
+                            style="margin: 0 0 10px 0; font-size: 11px; font-weight: 800; color: #ccac00; text-transform: uppercase;">
+                            إلى السيد / السادة | TO CUSTOMER:</p>
+                        <h3 style="margin: 0; font-size: 22px; font-weight: 800; color: #000;" id="r-name">---</h3>
+                        <div style="margin-top: 10px; font-size: 14px; color: #555;">
+                            <i class="fas fa-phone"></i> رقم الهاتف: <span id="r-phone"
+                                style="font-family: 'Outfit'; font-weight: 700;">---</span>
+                        </div>
+                    </div>
+                    <div
+                        style="padding: 20px; border: 1px solid #eee; border-radius: 12px; display: flex; flex-direction: column; justify-content: center;">
+                        <div
+                            style="display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px dashed #ddd; padding-bottom: 8px;">
+                            <span style="font-size: 13px; color: #666;">نوع الحساب:</span>
+                            <span style="font-size: 14px; font-weight: 800; color: #000;" id="r-type">---</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="font-size: 13px; color: #666;">حالة الحساب:</span>
+                            <span style="font-size: 13px; font-weight: 700; color: #28a745;">نشط ومعتمد</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Financial Summary Card -->
+                <div
+                    style="background: #000; border-radius: 20px; padding: 40px; margin-bottom: 45px; position: relative; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.1);">
+                    <!-- Decorative element -->
+                    <div
+                        style="position: absolute; top: -50px; left: -50px; width: 150px; height: 150px; background: rgba(204, 172, 0, 0.1); border-radius: 50%;">
+                    </div>
+
+                    <div
+                        style="position: relative; z-index: 1; display: flex; justify-content: space-between; align-items: center;">
+                        <div style="text-align: right;">
+                            <h4
+                                style="margin: 0; color: #ccac00; font-size: 14px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px;">
+                                إجمالي الرصيد المستحق للهذا الحساب</h4>
+                            <div style="font-size: 56px; font-weight: 900; color: #fff; font-family: 'Outfit';">
+                                <span id="r-amount">0.00</span> <small
+                                    style="font-size: 20px; font-weight: 400; color: #888;">EGP</small>
+                            </div>
+                        </div>
+                        <div style="text-align: left;">
+                            <img id="r-qr" src="" width="110" height="110"
+                                style="border: 5px solid #fff; border-radius: 12px; background: #fff;">
+                        </div>
+                    </div>
+                    <div style="margin-top: 25px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;">
+                        <p style="margin: 0; font-size: 15px; color: #aaa;">
+                            المبلغ بالحروف: <span id="r-amount-text" style="color: #fff; font-weight: 800;">---</span>
+                            جنيه مصري لا غير.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Detailed Transactions Header -->
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+                    <div style="width: 5px; height: 30px; background: #ccac00; border-radius: 2px;"></div>
+                    <h3 style="margin: 0; font-size: 18px; font-weight: 800; color: #000;">سجل الحركات المالية الموثقة
+                    </h3>
+                </div>
+
+                <!-- Transaction Table -->
+                <table
+                    style="width: 100%; border-collapse: separate; border-spacing: 0; margin-bottom: 40px; border: 1px solid #eee; border-radius: 12px; overflow: hidden;">
+                    <thead>
+                        <tr style="background: #f8f9fa;">
+                            <th
+                                style="padding: 15px; text-align: right; font-size: 12px; color: #666; font-weight: 800; border-bottom: 2px solid #eee;">
+                                التاريخ</th>
+                            <th
+                                style="padding: 15px; text-align: right; font-size: 12px; color: #666; font-weight: 800; border-bottom: 2px solid #eee;">
+                                النوع</th>
+                            <th
+                                style="padding: 15px; text-align: right; font-size: 12px; color: #666; font-weight: 800; border-bottom: 2px solid #eee;">
+                                البيان التفصيلي</th>
+                            <th
+                                style="padding: 15px; text-align: center; font-size: 12px; color: #666; font-weight: 800; border-bottom: 2px solid #eee;">
+                                القيمة</th>
+                        </tr>
+                    </thead>
+                    <tbody id="r-history-body">
+                        <!-- Dynamic Rows -->
+                    </tbody>
+                </table>
+
+                <!-- Footnote Section -->
+                <div
+                    style="display: grid; grid-template-columns: 1fr 200px; gap: 40px; align-items: flex-start; margin-top: 30px;">
+                    <div style="background: #fdfdfd; padding: 20px; border-radius: 12px; border: 1px dashed #ddd;">
+                        <h5 style="margin: 0 0 10px 0; font-size: 13px; color: #333; font-weight: 800;">ملاحظات وشروط:
+                        </h5>
+                        <p id="r-notes" style="margin: 0; font-size: 13px; color: #666; line-height: 1.6;">
+                            يرجى مراجعة الحساب في غضون 48 ساعة من تاريخ الاستلام في حال وجود أي استفسار.
+                        </p>
+                    </div>
+                    <div style="text-align: center; display: flex; flex-direction: column; gap: 15px;">
+                        <a id="r-wa-link" href="#"
+                            style="background: #25D366; color: #fff; padding: 12px; border-radius: 12px; text-decoration: none; font-weight: 800; font-size: 14px; display: block; box-shadow: 0 4px 15px rgba(37, 211, 102, 0.2);">
+                            <i class="fab fa-whatsapp"></i> ارسال عبر الواتس
+                        </a>
+                        <div style="padding-top: 20px; border-top: 1px solid #eee; font-size: 11px; color: #999;">
+                            توقيع المحاسب إلكترونياً
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Brand Footer -->
+                <div style="margin-top: 60px; text-align: center; border-top: 1px solid #eee; padding-top: 20px;">
+                    <p style="margin: 0; font-size: 11px; color: #bbb; font-weight: 400; letter-spacing: 0.5px;">
+                        تم إنشاء هذا التقرير آلياً بواسطة نظام <span
+                            style="color: #ccac00; font-weight: 800;">DebtManager PRO</span> لعام 2026.
+                    </p>
+                    <p style="margin: 5px 0 0 0; font-size: 10px; color: #ccc;">
+                        CONFIDENTIAL & SECURE FINANCIAL STATEMENT
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        function openAdd() {
+            document.getElementById('addDate').value = new Date().toISOString().split('T')[0];
+            openModal('addModal');
         }
-    }
 
-    // Update an EXISTING debt in RTDB using set() on its specific path
-    async function updateDebtInRTDB(debt) {
-        const fb = getFS();
-        if (!fb || !currentUser || !debt.id) return;
-        try {
-            await fb.set(debtRef(debt.id), debt);
-        } catch (e) {
-            console.error('RTDB update error:', e);
+        let currentEditId = null;
+        let currentUser = localStorage.getItem('debtManager_user') || null;
+        let debts = [];
+        let _firebaseReady = false;
+
+        // ======================================================
+        // Firebase Realtime Database — Per-Record Operations
+        // Each debt is stored individually:
+        //   users/{safeEmail}/debts/{firebasePushKey} = { ...debtObject }
+        // ======================================================
+
+        // Safe getter — waits until the module script has populated window._firebase
+        function getFS() { return window._firebase || null; }
+
+        // RTDB keys cannot contain '.', so replace with ',' in email
+        function userKey(email) { return email.replace(/\./g, ','); }
+
+        // Returns the RTDB ref for the debts list of the current user
+        function debtsRef() {
+            const fb = getFS();
+            return fb ? fb.ref(fb.db, `users/${userKey(currentUser)}/debts`) : null;
         }
-    }
 
-    // Remove a debt from RTDB using remove() on its specific path
-    async function removeDebtFromRTDB(id) {
-        const fb = getFS();
-        if (!fb || !currentUser || !id) return;
-        try {
-            await fb.remove(debtRef(id));
-        } catch (e) {
-            console.error('RTDB remove error:', e);
+        // Returns the RTDB ref for a SINGLE debt by its Firebase key (= debt.id)
+        function debtRef(id) {
+            const fb = getFS();
+            return fb ? fb.ref(fb.db, `users/${userKey(currentUser)}/debts/${id}`) : null;
         }
-    }
 
-    // Migrate OLD localStorage array (bulk) to individual RTDB records (one-time)
-    async function migrateLocalToRTDB(localDebts) {
-        for (const debt of localDebts) {
-            const key = await pushDebtToRTDB(debt);
-            if (key) debt.id = key;   // Assign Firebase key as new id
+        // Push a NEW debt to RTDB using push() — returns the generated Firebase key
+        async function pushDebtToRTDB(debt) {
+            const fb = getFS();
+            if (!fb || !currentUser) return null;
+            try {
+                const listRef = debtsRef();
+                const newRef = fb.push(listRef);   // generates a unique key
+                await fb.set(newRef, debt);
+                return newRef.key;                   // return the Firebase key as the debt id
+            } catch (e) {
+                console.error('RTDB push error:', e);
+                return null;
+            }
         }
-    }
 
-    // Subscribe to real-time RTDB updates for the current user
-    function subscribeRTDB() {
-        const fb = getFS();
-        if (!fb || !currentUser) return;
+        // Update an EXISTING debt in RTDB using set() on its specific path
+        async function updateDebtInRTDB(debt) {
+            const fb = getFS();
+            if (!fb || !currentUser || !debt.id) return;
+            try {
+                await fb.set(debtRef(debt.id), debt);
+            } catch (e) {
+                console.error('RTDB update error:', e);
+            }
+        }
 
-        // Detach any previous listener first
-        if (fb.unsubscribe) { fb.off(fb.unsubscribe); fb.unsubscribe = null; }
+        // Remove a debt from RTDB using remove() on its specific path
+        async function removeDebtFromRTDB(id) {
+            const fb = getFS();
+            if (!fb || !currentUser || !id) return;
+            try {
+                await fb.remove(debtRef(id));
+            } catch (e) {
+                console.error('RTDB remove error:', e);
+            }
+        }
 
-        const path = debtsRef();
-        fb.unsubscribe = path;   // save so we can call off() on logout
+        // Migrate OLD localStorage array (bulk) to individual RTDB records (one-time)
+        async function migrateLocalToRTDB(localDebts) {
+            for (const debt of localDebts) {
+                const key = await pushDebtToRTDB(debt);
+                if (key) debt.id = key;   // Assign Firebase key as new id
+            }
+        }
 
-        fb.onValue(path, (snap) => {
-            if (snap.exists()) {
-                // RTDB returns an Object {key: debt}, convert to array sorted newest-first
-                const raw = snap.val();
-                debts = Object.entries(raw)
-                    .map(([key, val]) => ({ ...val, id: key }))
-                    .sort((a, b) => (b.date || '').localeCompare(a.date || ''));
-            } else {
-                // First login — try to migrate existing localStorage data
-                const stored = localStorage.getItem(`debts_${currentUser}`);
-                const legacy = stored ? JSON.parse(stored) : [];
-                debts = [];
-                if (legacy.length > 0) {
-                    migrateLocalToRTDB(legacy); // pushes each record; onValue will fire again
-                    return;
+        // Subscribe to real-time RTDB updates for the current user
+        function subscribeRTDB() {
+            const fb = getFS();
+            if (!fb || !currentUser) return;
+
+            // Detach any previous listener first
+            if (fb.unsubscribe) { fb.off(fb.unsubscribe); fb.unsubscribe = null; }
+
+            const path = debtsRef();
+            fb.unsubscribe = path;   // save so we can call off() on logout
+
+            fb.onValue(path, (snap) => {
+                if (snap.exists()) {
+                    // RTDB returns an Object {key: debt}, convert to array sorted newest-first
+                    const raw = snap.val();
+                    debts = Object.entries(raw)
+                        .map(([key, val]) => ({ ...val, id: key }))
+                        .sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+                } else {
+                    // First login — try to migrate existing localStorage data
+                    const stored = localStorage.getItem(`debts_${currentUser}`);
+                    const legacy = stored ? JSON.parse(stored) : [];
+                    debts = [];
+                    if (legacy.length > 0) {
+                        migrateLocalToRTDB(legacy); // pushes each record; onValue will fire again
+                        return;
+                    }
                 }
-            }
-            // Sync local cache
-            localStorage.setItem(`debts_${currentUser}`, JSON.stringify(debts));
-            renderTable();
-        }, (err) => {
-            console.error('RTDB listener error:', err);
-            // Fallback: render from localStorage if cloud is unreachable
-            const stored = localStorage.getItem(`debts_${currentUser}`);
-            debts = stored ? JSON.parse(stored) : [];
-            renderTable();
-        });
-    }
-
-    function initApp() {
-        if (currentUser) {
-            document.getElementById('authBtn').innerHTML = `<i class="fas fa-sign-out-alt"></i> خروج (${currentUser})`;
-            document.getElementById('authBtn').onclick = logoutUser;
-            
-            document.querySelector('.hero').style.display = 'block';
-            document.querySelector('.stats').style.display = 'grid';
-            document.querySelector('.tabs-container').style.display = 'flex';
-            
-            switchTab('customer');
-            
-            // Load local cache immediately for instant render, then sync from cloud
-            const stored = localStorage.getItem(`debts_${currentUser}`);
-            debts = stored ? JSON.parse(stored) : [];
-            renderTable();
-
-            // Subscribe to RTDB (or wait until Firebase module is ready)
-            if (getFS()) {
-                subscribeRTDB();
-            } else {
-                window.addEventListener('firebase-ready', () => subscribeRTDB(), { once: true });
-            }
-        } else {
-            document.getElementById('authBtn').innerHTML = `<i class="fas fa-user-circle"></i> تسجيل الدخول`;
-            document.getElementById('authBtn').onclick = () => openModal('loginModal');
-            
-            // Stop any existing RTDB listener
-            const fs = getFS();
-            if (fs && fs.unsubscribe) { fs.off(fs.unsubscribe); fs.unsubscribe = null; }
-
-            document.querySelector('.hero').style.display = 'none';
-            document.querySelector('.stats').style.display = 'none';
-            document.querySelector('.tabs-container').style.display = 'none';
-            document.getElementById('customerSection').style.display = 'none';
-            document.getElementById('factorySection').style.display = 'none';
-            
-            debts = [];
-            renderTable();
-            openModal('loginModal');
+                // Sync local cache
+                localStorage.setItem(`debts_${currentUser}`, JSON.stringify(debts));
+                renderTable();
+            }, (err) => {
+                console.error('RTDB listener error:', err);
+                // Fallback: render from localStorage if cloud is unreachable
+                const stored = localStorage.getItem(`debts_${currentUser}`);
+                debts = stored ? JSON.parse(stored) : [];
+                renderTable();
+            });
         }
-    }
 
-    function loginUser() {
-        const username = document.getElementById('usernameInput').value.trim();
-        if(!username) { alert('يرجى إدخال اسم المستخدم'); return; }
-        currentUser = username;
-        localStorage.setItem('debtManager_user', currentUser);
-        closeModal('loginModal');
-        initApp();
-    }
+        function initApp() {
+            if (currentUser) {
+                document.getElementById('authBtn').innerHTML = `<i class="fas fa-sign-out-alt"></i> خروج (${currentUser})`;
+                document.getElementById('authBtn').onclick = logoutUser;
 
-    // Google Sign-In Callback
-    function handleCredentialResponse(response) {
-        try {
-            // Safe decode of JWT body (handles UTF-8 correctly for Arabic names)
-            const base64Url = response.credential.split('.')[1];
-            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-            const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
-                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-            }).join(''));
-            
-            const payload = JSON.parse(jsonPayload);
-            const name = payload.name;
-            const email = payload.email;
-            
-            // We use the email as the unique ID for the data key in localStorage
-            // This ensures data is private to the Google account
-            currentUser = email; 
-            
+                document.querySelector('.hero').style.display = 'block';
+                document.querySelector('.stats').style.display = 'grid';
+                document.querySelector('.tabs-container').style.display = 'flex';
+
+                switchTab('customer');
+
+                // Load local cache immediately for instant render, then sync from cloud
+                const stored = localStorage.getItem(`debts_${currentUser}`);
+                debts = stored ? JSON.parse(stored) : [];
+                renderTable();
+
+                // Subscribe to RTDB (or wait until Firebase module is ready)
+                if (getFS()) {
+                    subscribeRTDB();
+                } else {
+                    window.addEventListener('firebase-ready', () => subscribeRTDB(), { once: true });
+                }
+            } else {
+                document.getElementById('authBtn').innerHTML = `<i class="fas fa-user-circle"></i> تسجيل الدخول`;
+                document.getElementById('authBtn').onclick = () => openModal('loginModal');
+
+                // Stop any existing RTDB listener
+                const fs = getFS();
+                if (fs && fs.unsubscribe) { fs.off(fs.unsubscribe); fs.unsubscribe = null; }
+
+                document.querySelector('.hero').style.display = 'none';
+                document.querySelector('.stats').style.display = 'none';
+                document.querySelector('.tabs-container').style.display = 'none';
+                document.getElementById('customerSection').style.display = 'none';
+                document.getElementById('factorySection').style.display = 'none';
+
+                debts = [];
+                renderTable();
+                openModal('loginModal');
+            }
+        }
+
+        function loginUser() {
+            const username = document.getElementById('usernameInput').value.trim();
+            if (!username) { alert('يرجى إدخال اسم المستخدم'); return; }
+            currentUser = username;
             localStorage.setItem('debtManager_user', currentUser);
             closeModal('loginModal');
             initApp();
-            
-            // Helpful log
-            console.log("Logged in as:", name, `(${email})`);
-        } catch (error) {
-            console.error("خطأ في تسجيل الدخول عبر جوجل:", error);
-            alert("حدث خطأ أثناء تسجيل الدخول عبر جوجل. يرجى المحاولة مرة أخرى.");
-        }
-    }
-
-    function logoutUser() {
-        currentUser = null;
-        localStorage.removeItem('debtManager_user');
-        document.getElementById('usernameInput').value = '';
-        initApp();
-    }
-
-    function saveLocalData() {
-        if (!currentUser) return;
-        // Update localStorage as instant local cache.
-        // RTDB is updated per-operation (push/set/remove), not here.
-        localStorage.setItem(`debts_${currentUser}`, JSON.stringify(debts));
-    }
-
-    function switchTab(type) {
-        document.getElementById('customerSection').style.display = type === 'customer' ? 'block' : 'none';
-        document.getElementById('factorySection').style.display = type === 'factory' ? 'block' : 'none';
-        
-        document.getElementById('customerTab').classList.toggle('active', type === 'customer');
-        document.getElementById('factoryTab').classList.toggle('active', type === 'factory');
-    }
-
-    function openModal(id) { document.getElementById(id).classList.add('active'); }
-    function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-
-    // Voice Dictation (Speech to Text)
-    let recognition;
-    function toggleVoice(targetId, btn) {
-        if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-            alert("عذراً، متصفحك لا يدعم خاصية الإملاء الصوتي.");
-            return;
         }
 
-        if (btn.classList.contains('recording')) {
-            recognition.stop();
-            return;
+        // Google Sign-In Callback
+        function handleCredentialResponse(response) {
+            try {
+                // Safe decode of JWT body (handles UTF-8 correctly for Arabic names)
+                const base64Url = response.credential.split('.')[1];
+                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function (c) {
+                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                }).join(''));
+
+                const payload = JSON.parse(jsonPayload);
+                const name = payload.name;
+                const email = payload.email;
+
+                // We use the email as the unique ID for the data key in localStorage
+                // This ensures data is private to the Google account
+                currentUser = email;
+
+                localStorage.setItem('debtManager_user', currentUser);
+                closeModal('loginModal');
+                initApp();
+
+                // Helpful log
+                console.log("Logged in as:", name, `(${email})`);
+            } catch (error) {
+                console.error("خطأ في تسجيل الدخول عبر جوجل:", error);
+                alert("حدث خطأ أثناء تسجيل الدخول عبر جوجل. يرجى المحاولة مرة أخرى.");
+            }
         }
 
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        recognition = new SpeechRecognition();
-        recognition.lang = 'ar-SA';
-        recognition.interimResults = false;
+        function logoutUser() {
+            currentUser = null;
+            localStorage.removeItem('debtManager_user');
+            document.getElementById('usernameInput').value = '';
+            initApp();
+        }
 
-        recognition.onstart = () => {
-            btn.classList.add('recording');
-        };
+        function saveLocalData() {
+            if (!currentUser) return;
+            // Update localStorage as instant local cache.
+            // RTDB is updated per-operation (push/set/remove), not here.
+            localStorage.setItem(`debts_${currentUser}`, JSON.stringify(debts));
+        }
 
-        recognition.onresult = (event) => {
-            const transcript = event.results[0][0].transcript;
-            const textarea = document.getElementById(targetId);
-            textarea.value += (textarea.value ? ' ' : '') + transcript;
-        };
+        function switchTab(type) {
+            document.getElementById('customerSection').style.display = type === 'customer' ? 'block' : 'none';
+            document.getElementById('factorySection').style.display = type === 'factory' ? 'block' : 'none';
 
-        recognition.onend = () => {
-            btn.classList.remove('recording');
-        };
+            document.getElementById('customerTab').classList.toggle('active', type === 'customer');
+            document.getElementById('factoryTab').classList.toggle('active', type === 'factory');
+        }
 
-        recognition.onerror = (event) => {
-            console.error(event.error);
-            btn.classList.remove('recording');
-        };
+        function openModal(id) { document.getElementById(id).classList.add('active'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
-        recognition.start();
-    }
-
-    // Cache DOM lookups for speed
-    const dom = {
-        customerBody: document.getElementById('customerTableBody'),
-        factoryBody: document.getElementById('factoryTableBody'),
-        statUsers: document.getElementById('stat-total-users'),
-        statDebt: document.getElementById('stat-total-debt'),
-        statFactory: document.getElementById('stat-total-factory'),
-        statPaid: document.getElementById('stat-total-paid'),
-        searchInput: document.getElementById('searchInput')
-    };
-
-    function renderTable() {
-        let customerHtml = '';
-        let factoryHtml = '';
-        
-        let totalCustomerDebt = 0;
-        let totalFactoryDebt = 0;
-        let countUsers = 0;
-        let paidCount = 0;
-
-        // One-pass data processing
-        const len = debts.length;
-        for (let i = 0; i < len; i++) {
-            const debt = debts[i];
-            const isCustomer = debt.type === 'customer';
-            const amount = parseFloat(debt.amount);
-
-            if(isCustomer) {
-                countUsers++;
-                if(amount > 0) totalCustomerDebt += amount;
-                else paidCount++;
-            } else {
-                if(amount > 0) totalFactoryDebt += amount;
-                else paidCount++;
+        // Voice Dictation (Speech to Text)
+        let recognition;
+        function toggleVoice(targetId, btn) {
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                alert("عذراً، متصفحك لا يدعم خاصية الإملاء الصوتي.");
+                return;
             }
 
-            const badgeClass = amount === 0 ? 'paid' : 'unpaid';
-            const badgeText = amount === 0 ? 'تم السداد' : (isCustomer ? 'عليه ديون' : 'علينا دين');
-            const initial = debt.name.charAt(0);
-            const dateStr = debt.date ? debt.date.split('-').reverse().join('/') : '---';
+            if (btn.classList.contains('recording')) {
+                recognition.stop();
+                return;
+            }
 
-            const rowHtml = `
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            recognition.lang = 'ar-SA';
+            recognition.interimResults = false;
+
+            recognition.onstart = () => {
+                btn.classList.add('recording');
+            };
+
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                const textarea = document.getElementById(targetId);
+                textarea.value += (textarea.value ? ' ' : '') + transcript;
+            };
+
+            recognition.onend = () => {
+                btn.classList.remove('recording');
+            };
+
+            recognition.onerror = (event) => {
+                console.error(event.error);
+                btn.classList.remove('recording');
+            };
+
+            recognition.start();
+        }
+
+        // Cache DOM lookups for speed
+        const dom = {
+            customerBody: document.getElementById('dataRows'),
+            factoryBody: document.getElementById('factoryTableBody'),
+            statUsers: document.getElementById('stat-total-users'),
+            statDebt: document.getElementById('stat-total-debt'),
+            statFactory: document.getElementById('stat-total-factory'),
+            statPaid: document.getElementById('stat-total-paid'),
+            searchInput: document.getElementById('searchInput')
+        };
+
+        function renderTable() {
+            let customerHtml = '';
+            let factoryHtml = '';
+
+            let totalCustomerDebt = 0;
+            let totalFactoryDebt = 0;
+            let countUsers = 0;
+            let paidCount = 0;
+
+            // One-pass data processing
+            const len = debts.length;
+            for (let i = 0; i < len; i++) {
+                const debt = debts[i];
+                const isCustomer = debt.type === 'customer';
+                const amount = parseFloat(debt.amount);
+
+                if (isCustomer) {
+                    countUsers++;
+                    if (amount > 0) totalCustomerDebt += amount;
+                    else paidCount++;
+                } else {
+                    if (amount > 0) totalFactoryDebt += amount;
+                    else paidCount++;
+                }
+
+                const badgeClass = amount === 0 ? 'paid' : 'unpaid';
+                const badgeText = amount === 0 ? 'تم السداد' : (isCustomer ? 'عليه ديون' : 'علينا دين');
+                const initial = debt.name.charAt(0);
+                const dateStr = debt.date ? debt.date.split('-').reverse().join('/') : '---';
+
+                const rowHtml = `
                 <tr>
                     <td data-label="الاسم">
                         <div class="user-cell">
@@ -1188,106 +1949,106 @@
                     <td data-label="إجراءات">
                         <div class="actions">
                             <button class="action-btn whatsapp" onclick="openWhatsApp('${debt.phone}')"><i class="fab fa-whatsapp"></i></button>
-                            <button class="action-btn edit" onclick="openEdit(${debt.id})"><i class="fas fa-pen"></i></button>
-                            <button class="action-btn delete" onclick="deleteDebt(${debt.id})"><i class="fas fa-trash"></i></button>
+                            <button class="action-btn edit" onclick="openEdit('${debt.id}')"><i class="fas fa-pen"></i></button>
+                            <button class="action-btn delete" onclick="deleteDebt('${debt.id}')"><i class="fas fa-trash"></i></button>
                         </div>
                     </td>
                 </tr>`;
-            
-            if(isCustomer) customerHtml += rowHtml;
-            else factoryHtml += rowHtml;
+
+                if (isCustomer) customerHtml += rowHtml;
+                else factoryHtml += rowHtml;
+            }
+
+            // Single DOM write for main tables
+            dom.customerBody.innerHTML = customerHtml;
+            dom.factoryBody.innerHTML = factoryHtml;
+
+            // Statistics
+            dom.statUsers.textContent = countUsers;
+            dom.statDebt.textContent = totalCustomerDebt.toLocaleString();
+            dom.statFactory.textContent = totalFactoryDebt.toLocaleString();
+            dom.statPaid.textContent = paidCount;
+
+            checkEmpty('dataRows');
+            checkEmpty('factoryTableBody');
         }
 
-        // Single DOM write for main tables
-        dom.customerBody.innerHTML = customerHtml;
-        dom.factoryBody.innerHTML = factoryHtml;
+        async function saveNewDebt() {
+            const type = document.querySelector('input[name="accountType"]:checked').value;
+            const name = document.getElementById('pName').value.trim();
+            const phone = document.getElementById('addPhone').value.trim();
+            const amount = parseFloat(document.getElementById('pAmount').value) || 0;
+            const date = document.getElementById('addDate').value;
+            const notes = document.getElementById('addNotes').value.trim();
 
-        // Statistics
-        dom.statUsers.textContent = countUsers;
-        dom.statDebt.textContent = totalCustomerDebt.toLocaleString();
-        dom.statFactory.textContent = totalFactoryDebt.toLocaleString();
-        dom.statPaid.textContent = paidCount;
+            if (!name || amount === 0) { alert('يرجى إدخال الاسم والمبلغ'); return; }
 
-        checkEmpty('customerTableBody');
-        checkEmpty('factoryTableBody');
-    }
+            const newDebt = {
+                type,
+                name,
+                phone,
+                amount,
+                date,
+                notes,
+                history: [{ date, adjustment: amount, notes: notes || 'تسجيل الحساب أول مرة', isInitial: true }]
+            };
 
-    async function saveNewDebt() {
-        const type   = document.querySelector('input[name="accountType"]:checked').value;
-        const name   = document.getElementById('addName').value.trim();
-        const phone  = document.getElementById('addPhone').value.trim();
-        const amount = parseFloat(document.getElementById('addAmount').value) || 0;
-        const date   = document.getElementById('addDate').value;
-        const notes  = document.getElementById('addNotes').value.trim();
+            // Push to RTDB — the returned Firebase key becomes the debt id
+            const firebaseKey = await pushDebtToRTDB(newDebt);
+            if (firebaseKey) newDebt.id = firebaseKey;
 
-        if (!name || amount === 0) { alert('يرجى إدخال الاسم والمبلغ'); return; }
+            // Optimistically update local array & cache
+            debts.unshift({ ...newDebt, id: firebaseKey || Date.now() });
+            saveLocalData();
 
-        const newDebt = {
-            type,
-            name,
-            phone,
-            amount,
-            date,
-            notes,
-            history: [{ date, adjustment: amount, notes: notes || 'تسجيل الحساب أول مرة', isInitial: true }]
-        };
+            closeModal('addModal');
+            document.getElementById('pName').value = '';
+            document.getElementById('addPhone').value = '';
+            document.getElementById('pAmount').value = '';
+            document.getElementById('addNotes').value = '';
+            renderTable();
+            showToast('✅ تم حفظ السجل بنجاح', 'success');
+        }
 
-        // Push to RTDB — the returned Firebase key becomes the debt id
-        const firebaseKey = await pushDebtToRTDB(newDebt);
-        if (firebaseKey) newDebt.id = firebaseKey;
+        let tempEditAmount = 0;
 
-        // Optimistically update local array & cache
-        debts.unshift({ ...newDebt, id: firebaseKey || Date.now() });
-        saveLocalData();
+        function openEdit(id) {
+            const debt = debts.find(d => d.id === id);
+            if (!debt) return;
 
-        closeModal('addModal');
-        document.getElementById('addName').value   = '';
-        document.getElementById('addPhone').value  = '';
-        document.getElementById('addAmount').value = '';
-        document.getElementById('addNotes').value  = '';
-        renderTable();
-        showToast('✅ تم حفظ السجل بنجاح', 'success');
-    }
+            currentEditId = id;
+            tempEditAmount = parseFloat(debt.amount);
 
-    let tempEditAmount = 0;
-    
-    function openEdit(id) {
-        const debt = debts.find(d => d.id === id);
-        if(!debt) return;
-        
-        currentEditId = id;
-        tempEditAmount = parseFloat(debt.amount);
-        
-        document.getElementById('editUserName').innerText = debt.name;
-        document.getElementById('editPhone').value = debt.phone || '';
-        document.getElementById('editCurrentAmount').innerText = tempEditAmount.toLocaleString();
-        document.getElementById('editAdjustment').value = '';
-        document.getElementById('editDate').value = new Date().toISOString().split('T')[0];
-        document.getElementById('editNotes').value = ''; 
+            document.getElementById('editUserName').innerText = debt.name;
+            document.getElementById('editPhone').value = debt.phone || '';
+            document.getElementById('editCurrentAmount').innerText = tempEditAmount.toLocaleString();
+            document.getElementById('editAdjustment').value = '';
+            document.getElementById('editDate').value = new Date().toISOString().split('T')[0];
+            document.getElementById('editNotes').value = '';
 
-        // Render History
-        const historyContainer = document.getElementById('editHistoryList');
-        historyContainer.innerHTML = '';
-        
-        if(!debt.history || debt.history.length === 0) {
-            historyContainer.innerHTML = '<div style="text-align:center; color: var(--text-secondary); padding: 5px; font-size:13px;">لا يوجد سجل لمعاملات سابقة</div>';
-        } else {
-            [...debt.history].reverse().forEach(h => {
-                const isIncrease = h.adjustment > 0;
-                let valClass, actionText;
+            // Render History
+            const historyContainer = document.getElementById('editHistoryList');
+            historyContainer.innerHTML = '';
 
-                if (h.isInitial) {
-                    valClass = 'neutral';
-                    actionText = 'رصيد افتتاحي';
-                } else if (isIncrease) {
-                    valClass = 'increase';
-                    actionText = 'زيادة (فاتورة)';
-                } else {
-                    valClass = 'decrease';
-                    actionText = 'خصم (دفعة)';
-                }
+            if (!debt.history || debt.history.length === 0) {
+                historyContainer.innerHTML = '<div style="text-align:center; color: var(--text-secondary); padding: 5px; font-size:13px;">لا يوجد سجل لمعاملات سابقة</div>';
+            } else {
+                [...debt.history].reverse().forEach(h => {
+                    const isIncrease = h.adjustment > 0;
+                    let valClass, actionText;
 
-                historyContainer.innerHTML += `
+                    if (h.isInitial) {
+                        valClass = 'neutral';
+                        actionText = 'رصيد افتتاحي';
+                    } else if (isIncrease) {
+                        valClass = 'increase';
+                        actionText = 'زيادة (فاتورة)';
+                    } else {
+                        valClass = 'decrease';
+                        actionText = 'خصم (دفعة)';
+                    }
+
+                    historyContainer.innerHTML += `
                     <div class="history-item">
                         <div class="history-top">
                             <div class="history-date"><i class="far fa-calendar-alt"></i> ${h.date ? h.date.split('-').reverse().join('/') : '---'}</div>
@@ -1298,226 +2059,226 @@
                         </div>
                     </div>
                 `;
-            });
-        }
-        
-        openModal('editModal');
-    }
-
-    function adjustAmountInput(action) {
-        let adjValue = parseFloat(document.getElementById('editAdjustment').value);
-        if(isNaN(adjValue) || adjValue <= 0) return;
-
-        if(action === 'add') {
-            tempEditAmount += adjValue;
-        } else if (action === 'subtract') {
-            tempEditAmount -= adjValue;
-            if(tempEditAmount < 0) tempEditAmount = 0;
-        }
-        
-        document.getElementById('editCurrentAmount').innerText = tempEditAmount.toLocaleString();
-        document.getElementById('editAdjustment').value = ''; 
-    }
-
-    function saveEdit() {
-        const debtIndex = debts.findIndex(d => d.id === currentEditId);
-        if (debtIndex === -1) return;
-
-        const currentDebt = debts[debtIndex];
-        const editDate    = document.getElementById('editDate').value;
-        const editNotes   = document.getElementById('editNotes').value;
-        const diff        = tempEditAmount - currentDebt.amount;
-
-        if (diff !== 0 || editNotes.trim() !== '') {
-            if (!currentDebt.history) currentDebt.history = [];
-            currentDebt.history.push({
-                date:      editDate,
-                adjustment: diff,
-                notes:     editNotes || (diff > 0 ? 'فاتورة جديدة' : diff < 0 ? 'دفعة سداد' : 'تعديل ملاحظة'),
-                isInitial: false
-            });
-        }
-
-        currentDebt.amount = tempEditAmount;
-        currentDebt.phone  = document.getElementById('editPhone').value;
-        currentDebt.date   = editDate;
-        currentDebt.notes  = editNotes || currentDebt.notes;
-
-        // Save to RTDB (individual record) + localStorage cache
-        updateDebtInRTDB(currentDebt);
-        saveLocalData();
-
-        closeModal('editModal');
-        renderTable();
-        showToast('✏️ تم تحديث الحساب بنجاح', 'info');
-    }
-
-    function openWhatsApp(phone) {
-        if(!phone) { alert('لم يتم إضافة رقم هاتف لهذا الحساب'); return; }
-        
-        let cleanPhone = phone.replace(/\D/g, ''); // Remove all non-digits
-        
-        // WhatsApp international format: no leading + or 00
-        // If it starts with 0 and is 11 digits (Like Egyptian 010...), convert to 2010...
-        if (cleanPhone.startsWith('0') && cleanPhone.length === 11) {
-            cleanPhone = '20' + cleanPhone.substring(1);
-        } else if (cleanPhone.startsWith('00')) {
-            // Remove leading 00 if present
-            cleanPhone = cleanPhone.substring(2);
-        }
-        
-        window.open(`https://wa.me/${cleanPhone}`, '_blank');
-    }
-
-    function startQuickChat() {
-        const phone = document.getElementById('quickPhone').value;
-        if(!phone) { alert('يرجى إدخال رقم الهاتف أولاً'); return; }
-        
-        let cleanPhone = phone.replace(/\D/g, ''); // Remove all non-digits
-        
-        // Handle local and international formats
-        if (cleanPhone.startsWith('0') && cleanPhone.length === 11) {
-            cleanPhone = '20' + cleanPhone.substring(1);
-        } else if (cleanPhone.startsWith('00')) {
-            cleanPhone = cleanPhone.substring(2);
-        }
-        
-        window.open(`https://wa.me/${cleanPhone}`, '_blank');
-        closeModal('quickWhatsAppModal');
-    }
-
-    function deleteDebt(id) {
-        confirmDelete(() => {
-            // Remove from RTDB using the Firebase key
-            removeDebtFromRTDB(id);
-            // Remove from local array & update localStorage
-            debts = debts.filter(d => d.id !== id);
-            saveLocalData();
-            renderTable();
-        });
-    }
-
-    async function selectContact() {
-        if (!('contacts' in navigator) || !('ContactsManager' in window)) {
-            showToast('⚠️ متصفحك لا يدعم اختيار جهات الاتصال بشكل مباشر', 'error');
-            return;
-        }
-
-        const props = ['name', 'tel'];
-        const opts = { multiple: false };
-
-        try {
-            const contacts = await navigator.contacts.select(props, opts);
-            if (contacts.length > 0) {
-                const contact = contacts[0];
-                if (contact.name && contact.name.length > 0) {
-                    document.getElementById('addName').value = contact.name[0];
-                }
-                if (contact.tel && contact.tel.length > 0) {
-                    let phone = contact.tel[0].replace(/\D/g, '');
-                    document.getElementById('addPhone').value = phone;
-                }
-                showToast('✅ تم استيراد جهة الاتصال بنجاح', 'success');
+                });
             }
-        } catch (ex) {
-            console.error("Contact Picker Error:", ex);
-            if(ex.name !== 'AbortError') {
-                showToast('❌ حدث خطأ أثناء الوصول لجهات الاتصال', 'error');
-            }
+
+            openModal('editModal');
         }
-    }
 
-    function arabicNumberToWords(amount) {
-        if (amount === 0) return 'صفر';
-        // Simple implementation for common debt amounts
-        const formatter = new Intl.NumberFormat('ar-EG');
-        return formatter.format(amount); // For now, just a formatted number in Arabic locale is a good fallback, or a custom string
-    }
+        function adjustAmountInput(action) {
+            let adjValue = parseFloat(document.getElementById('editAdjustment').value);
+            if (isNaN(adjValue) || adjValue <= 0) return;
 
-    function generatePDF(source) {
-        let targetDebt;
-        
-        if (source === 'add') {
-            const type = document.querySelector('input[name="accountType"]:checked').value;
-            const name = document.getElementById('addName').value;
-            const amount = parseFloat(document.getElementById('addAmount').value) || 0;
-            const phone = document.getElementById('addPhone').value;
-            const date = document.getElementById('addDate').value;
-            const notes = document.getElementById('addNotes').value;
-
-            if(!name || !amount) {
-                showToast('⚠️ يرجى ملء الاسم والمبلغ أولاً', 'error');
-                return;
+            if (action === 'add') {
+                tempEditAmount += adjValue;
+            } else if (action === 'subtract') {
+                tempEditAmount -= adjValue;
+                if (tempEditAmount < 0) tempEditAmount = 0;
             }
-            
-            targetDebt = {
-                name, type, amount, phone, date, notes,
-                history: [{ date, adjustment: amount, notes: notes || 'رصيد افتتاحي', isInitial: true }]
-            };
-        } else {
-            const originalDebt = debts.find(d => d.id === currentEditId);
-            if (!originalDebt) return;
-            
+
+            document.getElementById('editCurrentAmount').innerText = tempEditAmount.toLocaleString();
+            document.getElementById('editAdjustment').value = '';
+        }
+
+        function saveEdit() {
+            const debtIndex = debts.findIndex(d => d.id === currentEditId);
+            if (debtIndex === -1) return;
+
+            const currentDebt = debts[debtIndex];
             const editDate = document.getElementById('editDate').value;
             const editNotes = document.getElementById('editNotes').value;
-            const diff = tempEditAmount - originalDebt.amount;
-            
-            let previewHistory = [...(originalDebt.history || [])];
-            if (diff !== 0) {
-                previewHistory.push({
+            const diff = tempEditAmount - currentDebt.amount;
+
+            if (diff !== 0 || editNotes.trim() !== '') {
+                if (!currentDebt.history) currentDebt.history = [];
+                currentDebt.history.push({
                     date: editDate,
                     adjustment: diff,
-                    notes: editNotes || (diff > 0 ? 'فاتورة جديدة (قيد الحفظ)' : 'دفعة سداد (قيد الحفظ)'),
+                    notes: editNotes || (diff > 0 ? 'فاتورة جديدة' : diff < 0 ? 'دفعة سداد' : 'تعديل ملاحظة'),
                     isInitial: false
                 });
             }
 
-            targetDebt = {
-                ...originalDebt,
-                amount: tempEditAmount,
-                notes: editNotes || originalDebt.notes,
-                date: editDate,
-                history: previewHistory
-            };
+            currentDebt.amount = tempEditAmount;
+            currentDebt.phone = document.getElementById('editPhone').value;
+            currentDebt.date = editDate;
+            currentDebt.notes = editNotes || currentDebt.notes;
+
+            // Save to RTDB (individual record) + localStorage cache
+            updateDebtInRTDB(currentDebt);
+            saveLocalData();
+
+            closeModal('editModal');
+            renderTable();
+            showToast('✏️ تم تحديث الحساب بنجاح', 'info');
         }
 
-        // --- Populate New PDF Template ---
-        const now = new Date();
-        document.getElementById('r-name').innerText = targetDebt.name;
-        document.getElementById('r-date').innerText = targetDebt.date ? targetDebt.date.split('-').reverse().join('/') : '---';
-        document.getElementById('r-time').innerText = now.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
-        document.getElementById('r-phone').innerText = targetDebt.phone || 'غير مسجل';
-        document.getElementById('r-type').innerText = targetDebt.type === 'customer' ? 'حساب زبون (لي فلوس)' : 'حساب مصنع (عليّ فلوس)';
-        document.getElementById('r-amount').innerText = parseFloat(targetDebt.amount).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-        
-        // Tafqeet fallback (Simple formatted number in Arabic context)
-        document.getElementById('r-amount-text').innerText = parseFloat(targetDebt.amount).toLocaleString('ar-EG');
-        
-        const refId = Math.floor(100000 + Math.random() * 900000);
-        document.getElementById('r-ref').innerText = refId;
-        document.getElementById('r-notes').innerText = targetDebt.notes || 'تمت مراجعة الحساب وتأكيده بناءً على السجلات الحالية.';
+        function openWhatsApp(phone) {
+            if (!phone) { alert('لم يتم إضافة رقم هاتف لهذا الحساب'); return; }
 
-        // QR Code Generation
-        const qrData = `DebtManager Report\nRef: ${refId}\nName: ${targetDebt.name}\nBalance: ${targetDebt.amount} EGP\nDate: ${now.toLocaleDateString()}`;
-        document.getElementById('r-qr').src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(qrData)}`;
+            let cleanPhone = phone.replace(/\D/g, ''); // Remove all non-digits
 
-        // WhatsApp Share Link inside PDF
-        const shareMsg = `تقرير مالي من DebtManager\nالاسم: ${targetDebt.name}\nالرصيد: ${targetDebt.amount} جنيه\nبتاريخ: ${targetDebt.date}`;
-        document.getElementById('r-wa-link').href = `https://wa.me/?text=${encodeURIComponent(shareMsg)}`;
+            // WhatsApp international format: no leading + or 00
+            // If it starts with 0 and is 11 digits (Like Egyptian 010...), convert to 2010...
+            if (cleanPhone.startsWith('0') && cleanPhone.length === 11) {
+                cleanPhone = '20' + cleanPhone.substring(1);
+            } else if (cleanPhone.startsWith('00')) {
+                // Remove leading 00 if present
+                cleanPhone = cleanPhone.substring(2);
+            }
 
-        // History Table
-        const historyBody = document.getElementById('r-history-body');
-        historyBody.innerHTML = '';
-        
-        [...targetDebt.history].reverse().forEach((h, index) => {
-            const tr = document.createElement('tr');
-            tr.style.backgroundColor = index % 2 === 0 ? '#ffffff' : '#fcfcfc';
-            
-            const typeText = h.isInitial ? 'رصيد افتتاحي' : (h.adjustment > 0 ? 'فاتورة (+)' : 'دفعة (-)');
-            const typeColor = h.isInitial ? '#666' : (h.adjustment > 0 ? '#28a745' : '#dc3545');
-            const typeBg = h.isInitial ? '#f0f0f0' : (h.adjustment > 0 ? '#e8f5e9' : '#ffebee');
-            
-            tr.innerHTML = `
+            window.open(`https://wa.me/${cleanPhone}`, '_blank');
+        }
+
+        function startQuickChat() {
+            const phone = document.getElementById('quickPhone').value;
+            if (!phone) { alert('يرجى إدخال رقم الهاتف أولاً'); return; }
+
+            let cleanPhone = phone.replace(/\D/g, ''); // Remove all non-digits
+
+            // Handle local and international formats
+            if (cleanPhone.startsWith('0') && cleanPhone.length === 11) {
+                cleanPhone = '20' + cleanPhone.substring(1);
+            } else if (cleanPhone.startsWith('00')) {
+                cleanPhone = cleanPhone.substring(2);
+            }
+
+            window.open(`https://wa.me/${cleanPhone}`, '_blank');
+            closeModal('quickWhatsAppModal');
+        }
+
+        function deleteDebt(id) {
+            confirmDelete(() => {
+                // Remove from RTDB using the Firebase key
+                removeDebtFromRTDB(id);
+                // Remove from local array & update localStorage
+                debts = debts.filter(d => d.id !== id);
+                saveLocalData();
+                renderTable();
+            });
+        }
+
+        async function selectContact() {
+            if (!('contacts' in navigator) || !('ContactsManager' in window)) {
+                showToast('⚠️ متصفحك لا يدعم اختيار جهات الاتصال بشكل مباشر', 'error');
+                return;
+            }
+
+            const props = ['name', 'tel'];
+            const opts = { multiple: false };
+
+            try {
+                const contacts = await navigator.contacts.select(props, opts);
+                if (contacts.length > 0) {
+                    const contact = contacts[0];
+                    if (contact.name && contact.name.length > 0) {
+                        document.getElementById('pName').value = contact.name[0];
+                    }
+                    if (contact.tel && contact.tel.length > 0) {
+                        let phone = contact.tel[0].replace(/\D/g, '');
+                        document.getElementById('addPhone').value = phone;
+                    }
+                    showToast('✅ تم استيراد جهة الاتصال بنجاح', 'success');
+                }
+            } catch (ex) {
+                console.error("Contact Picker Error:", ex);
+                if (ex.name !== 'AbortError') {
+                    showToast('❌ حدث خطأ أثناء الوصول لجهات الاتصال', 'error');
+                }
+            }
+        }
+
+        function arabicNumberToWords(amount) {
+            if (amount === 0) return 'صفر';
+            // Simple implementation for common debt amounts
+            const formatter = new Intl.NumberFormat('ar-EG');
+            return formatter.format(amount); // For now, just a formatted number in Arabic locale is a good fallback, or a custom string
+        }
+
+        function generatePDF(source) {
+            let targetDebt;
+
+            if (source === 'add') {
+                const type = document.querySelector('input[name="accountType"]:checked').value;
+                const name = document.getElementById('pName').value;
+                const amount = parseFloat(document.getElementById('pAmount').value) || 0;
+                const phone = document.getElementById('addPhone').value;
+                const date = document.getElementById('addDate').value;
+                const notes = document.getElementById('addNotes').value;
+
+                if (!name || !amount) {
+                    showToast('⚠️ يرجى ملء الاسم والمبلغ أولاً', 'error');
+                    return;
+                }
+
+                targetDebt = {
+                    name, type, amount, phone, date, notes,
+                    history: [{ date, adjustment: amount, notes: notes || 'رصيد افتتاحي', isInitial: true }]
+                };
+            } else {
+                const originalDebt = debts.find(d => d.id === currentEditId);
+                if (!originalDebt) return;
+
+                const editDate = document.getElementById('editDate').value;
+                const editNotes = document.getElementById('editNotes').value;
+                const diff = tempEditAmount - originalDebt.amount;
+
+                let previewHistory = [...(originalDebt.history || [])];
+                if (diff !== 0) {
+                    previewHistory.push({
+                        date: editDate,
+                        adjustment: diff,
+                        notes: editNotes || (diff > 0 ? 'فاتورة جديدة (قيد الحفظ)' : 'دفعة سداد (قيد الحفظ)'),
+                        isInitial: false
+                    });
+                }
+
+                targetDebt = {
+                    ...originalDebt,
+                    amount: tempEditAmount,
+                    notes: editNotes || originalDebt.notes,
+                    date: editDate,
+                    history: previewHistory
+                };
+            }
+
+            // --- Populate New PDF Template ---
+            const now = new Date();
+            document.getElementById('r-name').innerText = targetDebt.name;
+            document.getElementById('r-date').innerText = targetDebt.date ? targetDebt.date.split('-').reverse().join('/') : '---';
+            document.getElementById('r-time').innerText = now.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+            document.getElementById('r-phone').innerText = targetDebt.phone || 'غير مسجل';
+            document.getElementById('r-type').innerText = targetDebt.type === 'customer' ? 'حساب زبون (لي فلوس)' : 'حساب مصنع (عليّ فلوس)';
+            document.getElementById('r-amount').innerText = parseFloat(targetDebt.amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+            // Tafqeet fallback (Simple formatted number in Arabic context)
+            document.getElementById('r-amount-text').innerText = parseFloat(targetDebt.amount).toLocaleString('ar-EG');
+
+            const refId = Math.floor(100000 + Math.random() * 900000);
+            document.getElementById('r-ref').innerText = refId;
+            document.getElementById('r-notes').innerText = targetDebt.notes || 'تمت مراجعة الحساب وتأكيده بناءً على السجلات الحالية.';
+
+            // QR Code Generation
+            const qrData = `DebtManager Report\nRef: ${refId}\nName: ${targetDebt.name}\nBalance: ${targetDebt.amount} EGP\nDate: ${now.toLocaleDateString()}`;
+            document.getElementById('r-qr').src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(qrData)}`;
+
+            // WhatsApp Share Link inside PDF
+            const shareMsg = `تقرير مالي من DebtManager\nالاسم: ${targetDebt.name}\nالرصيد: ${targetDebt.amount} جنيه\nبتاريخ: ${targetDebt.date}`;
+            document.getElementById('r-wa-link').href = `https://wa.me/?text=${encodeURIComponent(shareMsg)}`;
+
+            // History Table
+            const historyBody = document.getElementById('r-history-body');
+            historyBody.innerHTML = '';
+
+            [...targetDebt.history].reverse().forEach((h, index) => {
+                const tr = document.createElement('tr');
+                tr.style.backgroundColor = index % 2 === 0 ? '#ffffff' : '#fcfcfc';
+
+                const typeText = h.isInitial ? 'رصيد افتتاحي' : (h.adjustment > 0 ? 'فاتورة (+)' : 'دفعة (-)');
+                const typeColor = h.isInitial ? '#666' : (h.adjustment > 0 ? '#28a745' : '#dc3545');
+                const typeBg = h.isInitial ? '#f0f0f0' : (h.adjustment > 0 ? '#e8f5e9' : '#ffebee');
+
+                tr.innerHTML = `
                 <td style="padding: 15px; font-size: 13px; font-family: 'Outfit'; border-bottom: 1px solid #eee;">${h.date ? h.date.split('-').reverse().join('/') : '---'}</td>
                 <td style="padding: 15px; font-size: 12px; font-weight:bold; border-bottom: 1px solid #eee;">
                     <span style="background:${typeBg}; color:${typeColor}; padding:5px 12px; border-radius:8px; display:inline-block; font-size:11px;">${typeText}</span>
@@ -1525,106 +2286,153 @@
                 <td style="padding: 15px; font-size: 13px; color:#444; border-bottom: 1px solid #eee; font-weight:500;">${h.notes || '---'}</td>
                 <td style="padding: 15px; text-align: center; font-weight:800; font-family: 'Outfit'; font-size: 16px; color:#000; border-bottom: 1px solid #eee;">${Math.abs(h.adjustment).toLocaleString()}</td>
             `;
-            historyBody.appendChild(tr);
-        });
+                historyBody.appendChild(tr);
+            });
 
-        // Render PDF
-        const element = document.getElementById('receipt');
-        showToast('⏳ جاري إنشاء التقرير الفاخر...', 'info');
+            // Render PDF
+            const element = document.getElementById('receipt');
+            showToast('⏳ جاري إنشاء التقرير الفاخر...', 'info');
 
-        const opt = {
-            margin:       [0, 0], // Bleed to edges if needed, handled by internal padding
-            filename:     `DebtManager_${targetDebt.name}_${targetDebt.date}.pdf`,
-            image:        { type: 'jpeg', quality: 1 },
-            html2canvas:  { 
-                scale: 3, 
-                useCORS: true,
-                letterRendering: false,
-                scrollY: 0,
-                scrollX: 0
-            },
-            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        };
-
-        html2pdf().set(opt).from(element).save().then(() => {
-            showToast('✅ تم تحميل التقرير بنجاح', 'success');
-        }).catch(err => {
-            console.error('PDF Error:', err);
-            showToast('❌ حدث خطأ أثناء تحميل الملف', 'error');
-        });
-    }
-
-    // Debounced filter for smoothness
-    let searchTimeout;
-    function filterTable() {
-        clearTimeout(searchTimeout);
-        searchTimeout = setTimeout(() => {
-            const input = dom.searchInput.value.toLowerCase();
-            const customerRows = dom.customerBody.querySelectorAll("tr");
-            const factoryRows = dom.factoryBody.querySelectorAll("tr");
-            
-            const filter = (rows) => {
-                const len = rows.length;
-                for (let i = 0; i < len; i++) {
-                    const row = rows[i];
-                    const name = row.querySelector('.user-cell div:last-child').textContent.toLowerCase();
-                    row.style.display = name.includes(input) ? "" : "none";
-                }
+            const opt = {
+                margin: [0, 0], // Bleed to edges if needed, handled by internal padding
+                filename: `DebtManager_${targetDebt.name}_${targetDebt.date}.pdf`,
+                image: { type: 'jpeg', quality: 1 },
+                html2canvas: {
+                    scale: 3,
+                    useCORS: true,
+                    letterRendering: false,
+                    scrollY: 0,
+                    scrollX: 0
+                },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
-            filter(customerRows);
-            filter(factoryRows);
-        }, 150);
-    }
 
-    // ===== Toast Utility =====
-    function showToast(msg, type = 'info') {
-        const toast = document.createElement('div');
-        toast.className = `toast ${type}`;
-        
-        // Add icon based on type
-        let icon = '';
-        if (type === 'success') icon = '<i class="fas fa-check-circle"></i>';
-        else if (type === 'error') icon = '<i class="fas fa-exclamation-circle"></i>';
-        else if (type === 'info') icon = '<i class="fas fa-info-circle"></i>';
-        
-        toast.innerHTML = `${icon} <span>${msg}</span>`;
-        document.body.appendChild(toast);
-        
-        setTimeout(() => toast.classList.add('show'), 100);
-        setTimeout(() => {
-            toast.classList.remove('show');
-            setTimeout(() => toast.remove(), 300);
-        }, 3000);
-    }
-
-    // ===== Confirm Delete =====
-    function confirmDelete(callback) {
-        if (confirm('هل أنت متأكد من الحذف؟')) {
-            callback();
-            showToast('تم الحذف بنجاح 🗑️');
+            html2pdf().set(opt).from(element).save().then(() => {
+                showToast('✅ تم تحميل التقرير بنجاح', 'success');
+            }).catch(err => {
+                console.error('PDF Error:', err);
+                showToast('❌ حدث خطأ أثناء تحميل الملف', 'error');
+            });
         }
-    }
 
-    // ===== Empty State Check =====
-    function checkEmpty(tableId) {
-        // Remove any previous empty state for this table
-        const prev = document.getElementById('empty-' + tableId);
-        if (prev) prev.remove();
+        // Debounced filter for smoothness
+        let searchTimeout;
+        function filterTable() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                const input = dom.searchInput.value.toLowerCase();
+                const customerRows = dom.customerBody.querySelectorAll("tr");
+                const factoryRows = dom.factoryBody.querySelectorAll("tr");
 
-        const table = document.getElementById(tableId);
-        if (!table) return;
-        const rows = table.querySelectorAll('tbody tr');
-        if (rows.length === 0) {
-            const empty = document.createElement('div');
-            empty.id = 'empty-' + tableId;
-            empty.className = 'empty';
-            empty.innerHTML = `<i class="fas fa-inbox"></i><h3>📭 مفيش بيانات</h3><p>ابدأ بإضافة أول عميل</p>`;
-            table.after(empty);
+                const filter = (rows) => {
+                    const len = rows.length;
+                    for (let i = 0; i < len; i++) {
+                        const row = rows[i];
+                        const name = row.querySelector('.user-cell div:last-child').textContent.toLowerCase();
+                        row.style.display = name.includes(input) ? "" : "none";
+                    }
+                };
+                filter(customerRows);
+                filter(factoryRows);
+            }, 150);
         }
-    }
 
-    initApp();
+        // ===== Toast Utility =====
+        function showToast(msg, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+
+            // Add icon based on type
+            let icon = '';
+            if (type === 'success') icon = '<i class="fas fa-check-circle"></i>';
+            else if (type === 'error') icon = '<i class="fas fa-exclamation-circle"></i>';
+            else if (type === 'info') icon = '<i class="fas fa-info-circle"></i>';
+
+            toast.innerHTML = `${icon} <span>${msg}</span>`;
+            document.body.appendChild(toast);
+
+            setTimeout(() => toast.classList.add('show'), 100);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // ===== Confirm Delete =====
+        function confirmDelete(callback) {
+            if (confirm('هل أنت متأكد من الحذف؟')) {
+                callback();
+                showToast('تم الحذف بنجاح 🗑️');
+            }
+        }
+
+        // ===== Empty State Check =====
+        function checkEmpty(tableId) {
+            // Remove any previous empty state for this table
+            const prev = document.getElementById('empty-' + tableId);
+            if (prev) prev.remove();
+
+            const table = document.getElementById(tableId);
+            if (!table) return;
+            const rows = table.querySelectorAll('tbody tr');
+            if (rows.length === 0) {
+                const empty = document.createElement('div');
+                empty.id = 'empty-' + tableId;
+                empty.className = 'empty';
+                empty.innerHTML = `<i class="fas fa-inbox"></i><h3>📭 مفيش بيانات</h3><p>ابدأ بإضافة أول عميل</p>`;
+                table.after(empty);
+            }
+        }
+
+        initApp();
+    </script>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+
+  const firestoreConfig = {
+    apiKey: "AIzaSyDfgO7tVjztx4j-4A4RHE8-zeaDYggpnx8",
+    authDomain: "adham-project.firebaseapp.com",
+    projectId: "adham-project",
+    storageBucket: "adham-project.firebasestorage.app",
+    messagingSenderId: "103669813823",
+    appId: "1:103669813823:web:e8550f1da821d2c7e59e8a"
+  };
+
+  const firestoreApp = initializeApp(firestoreConfig, 'firestoreApp');
+  const fsDb = getFirestore(firestoreApp);
+
+  // حفظ البيانات
+  document.getElementById("saveBtn").addEventListener("click", async () => {
+    const name = document.getElementById("pName").value;
+    const amount = document.getElementById("pAmount").value;
+    if (name && amount) {
+      try {
+        await addDoc(collection(fsDb, "konnash"), {
+          customer: name,
+          amount: amount,
+          date: new Date()
+        });
+      } catch(e) {
+        console.error("Firestore save error:", e);
+      }
+    }
+  });
+
+  // عرض البيانات لحظياً في الجدول
+  const q = query(collection(fsDb, "konnash"), orderBy("date", "desc"));
+  onSnapshot(q, (snapshot) => {
+    const tbody = document.getElementById("dataRows");
+    tbody.innerHTML = "";
+    snapshot.forEach((doc) => {
+      const item = doc.data();
+      const dateStr = item.date ? item.date.toDate().toLocaleDateString('ar-EG') : '';
+      tbody.innerHTML += `<tr><td>${item.customer}</td><td>${item.amount} ج.م</td><td>${dateStr}</td></tr>`;
+    });
+  });
 </script>
 
 </body>
+
 </html>
