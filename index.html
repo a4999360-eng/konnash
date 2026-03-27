@@ -1216,13 +1216,25 @@
         </button>
     </div>
 
-    <!-- Shared Search Bar -->
-    <div style="padding: 0 5%; margin-bottom: 20px;">
-        <div style="position: relative; max-width: 400px; margin: 0 auto;">
-            <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="بحث عن اسم في القائمة الحالية..."
-                class="form-control" style="padding-right:35px; text-align: center;">
-            <i class="fas fa-search"
-                style="position: absolute; right: 15px; top: 15px; color: var(--text-secondary);"></i>
+    <!-- Shared Search Bar & Sort -->
+    <div style="padding: 0 5%; margin-bottom: 25px;">
+        <div style="display: flex; gap: 10px; max-width: 500px; margin: 0 auto; align-items: center;">
+            <div style="position: relative; flex: 1;">
+                <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="بحث عن اسم في القائمة..."
+                    class="form-control" style="padding-right:35px; text-align: right;">
+                <i class="fas fa-search"
+                    style="position: absolute; right: 12px; top: 15px; color: var(--text-secondary);"></i>
+            </div>
+            <div style="position: relative;">
+                <select id="sortSelect" onchange="applySort(this.value)" class="form-control" 
+                    style="padding-right: 35px; width: 140px; font-size: 13px; appearance: none; cursor: pointer; border-color: var(--accent-primary);">
+                    <option value="date-desc">🕒 الأحدث تعديلاً</option>
+                    <option value="amount-desc">💰 الأعلى رصيداً</option>
+                    <option value="amount-asc">📉 الأقل رصيداً</option>
+                </select>
+                <i class="fas fa-filter" 
+                    style="position: absolute; right: 12px; top: 15px; color: var(--accent-primary); pointer-events: none;"></i>
+            </div>
         </div>
     </div>
 
@@ -1716,8 +1728,7 @@
                 if (snap.exists()) {
                     const raw = snap.val();
                     debts = Object.entries(raw)
-                        .map(([key, val]) => ({ ...val, id: key }))
-                        .sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+                        .map(([key, val]) => ({ ...val, id: key }));
                     hasCheckedMigration = true;
                 } else {
                     debts = [];
@@ -1924,6 +1935,14 @@
         };
 
         function renderTable() {
+            // Apply sorting before render
+            debts.sort((a, b) => {
+                if (currentSort === 'amount-desc') return b.amount - a.amount;
+                if (currentSort === 'amount-asc') return a.amount - b.amount;
+                // Default: date-desc
+                return (b.date || '').localeCompare(a.date || '');
+            });
+
             let customerHtml = '';
             let factoryHtml = '';
 
@@ -2026,6 +2045,12 @@
 
         let tempEditAmount = 0;
         let totalAdjustmentAmount = 0;
+        let currentSort = 'date-desc';
+
+        function applySort(val) {
+            currentSort = val;
+            renderTable();
+        }
 
         function openEdit(id) {
             const debt = debts.find(d => d.id === id);
