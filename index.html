@@ -1348,8 +1348,9 @@
                     style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); padding: 15px; border-radius: 12px; margin-bottom: 20px; text-align: center;">
                     <p style="color: var(--text-secondary); margin-bottom: 5px; font-size: 14px;">إجمالي الدين الحالي
                     </p>
-                    <h2 id="editCurrentAmount"
-                        style="font-family: 'Outfit'; font-size: 32px; color: var(--accent-primary);">0</h2>
+                    <input type="number" id="editCurrentAmount"
+                        style="font-family: 'Outfit'; font-size: 32px; color: var(--accent-primary); background: transparent; border: none; text-align: center; width: 80%; outline: none; border-bottom: 2px dashed rgba(255, 215, 0, 0.3); padding: 5px; font-weight: bold; margin: 0 auto; display: block;"
+                        title="تغيير الإجمالي مباشرة">
                 </div>
 
                 <div class="form-group">
@@ -2024,6 +2025,7 @@
         }
 
         let tempEditAmount = 0;
+        let totalAdjustmentAmount = 0;
 
         function openEdit(id) {
             const debt = debts.find(d => d.id === id);
@@ -2031,10 +2033,11 @@
 
             currentEditId = id;
             tempEditAmount = parseFloat(debt.amount);
+            totalAdjustmentAmount = 0;
 
             document.getElementById('editUserName').innerText = debt.name;
             document.getElementById('editPhone').value = debt.phone || '';
-            document.getElementById('editCurrentAmount').innerText = tempEditAmount.toLocaleString();
+            document.getElementById('editCurrentAmount').value = tempEditAmount;
             document.getElementById('editAdjustment').value = '';
             document.getElementById('editDate').value = new Date().toISOString().split('T')[0];
             document.getElementById('editNotes').value = '';
@@ -2082,14 +2085,18 @@
             let adjValue = parseFloat(document.getElementById('editAdjustment').value);
             if (isNaN(adjValue) || adjValue <= 0) return;
 
+            let currentVal = parseFloat(document.getElementById('editCurrentAmount').value) || 0;
+
             if (action === 'add') {
-                tempEditAmount += adjValue;
+                currentVal += adjValue;
+                totalAdjustmentAmount += adjValue;
             } else if (action === 'subtract') {
-                tempEditAmount -= adjValue;
-                if (tempEditAmount < 0) tempEditAmount = 0;
+                currentVal -= adjValue;
+                totalAdjustmentAmount -= adjValue;
+                if (currentVal < 0) currentVal = 0;
             }
 
-            document.getElementById('editCurrentAmount').innerText = tempEditAmount.toLocaleString();
+            document.getElementById('editCurrentAmount').value = currentVal;
             document.getElementById('editAdjustment').value = '';
         }
 
@@ -2100,19 +2107,37 @@
             const currentDebt = debts[debtIndex];
             const editDate = document.getElementById('editDate').value;
             const editNotes = document.getElementById('editNotes').value;
-            const diff = tempEditAmount - currentDebt.amount;
+            const finalAmount = parseFloat(document.getElementById('editCurrentAmount').value) || 0;
+            
+            // Calculate actual total difference
+            const diff = finalAmount - currentDebt.amount;
 
             if (diff !== 0 || editNotes.trim() !== '') {
-                if (!currentDebt.history) currentDebt.history = [];
-                currentDebt.history.push({
-                    date: editDate,
-                    adjustment: diff,
-                    notes: editNotes || (diff > 0 ? 'فاتورة جديدة' : diff < 0 ? 'دفعة سداد' : 'تعديل ملاحظة'),
-                    isInitial: false
-                });
+                const manualDiff = diff - totalAdjustmentAmount;
+
+                // 1. If there's a manual override, it "resets" the starting point
+                if (manualDiff !== 0) {
+                    const initialItem = currentDebt.history.find(h => h.isInitial);
+                    if (initialItem) {
+                        // Flatten history into a single new initial balance line
+                        currentDebt.history = [initialItem];
+                        initialItem.adjustment = finalAmount - totalAdjustmentAmount;
+                        if (editNotes.trim()) initialItem.notes = editNotes;
+                    }
+                }
+
+                // 2. If buttons (+/-) were used, add a regular transaction record
+                if (totalAdjustmentAmount !== 0) {
+                    currentDebt.history.push({
+                        date: editDate,
+                        adjustment: totalAdjustmentAmount,
+                        notes: editNotes || (totalAdjustmentAmount > 0 ? 'إضافة فاتورة' : 'سداد دفعة'),
+                        isInitial: false
+                    });
+                }
             }
 
-            currentDebt.amount = tempEditAmount;
+            currentDebt.amount = finalAmount;
             currentDebt.phone = document.getElementById('editPhone').value;
             currentDebt.date = editDate;
             currentDebt.notes = editNotes || currentDebt.notes;
