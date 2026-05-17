@@ -2208,8 +2208,14 @@
                 history: [{ date, adjustment: amount, notes: notes || '', isInitial: true }]
             };
 
-            // Push to RTDB — this instantly triggers onValue locally so we don't need manual unshift
-            pushDebtToRTDB(newDebt);
+            // Push to RTDB
+            const newId = pushDebtToRTDB(newDebt);
+            
+            // Optimistic UI update
+            if (newId) {
+                newDebt.id = newId;
+                debts.push(newDebt);
+            }
 
             closeModal('addModal');
             document.getElementById('pName').value = '';
@@ -2386,6 +2392,12 @@
             const t = translations[currentLang];
             if (confirm(t.confirmDelete || 'Are you sure?')) {
                 removeDebtFromRTDB(id);
+                
+                // Optimistic UI update
+                debts = debts.filter(d => d.id !== id);
+                renderTable();
+                
+                showToast(currentLang === 'ar' ? 'تم الحذف بنجاح 🗑️' : '🗑️ Deleted successfully', 'success');
             }
         }
 
