@@ -512,6 +512,30 @@
             position: relative;
             max-height: 90vh;
             overflow-y: auto;
+            /* Firefox scrollbar */
+            scrollbar-width: thin;
+            scrollbar-color: var(--accent-primary) transparent;
+        }
+
+        /* Webkit scrollbar for Modal */
+        .modal::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .modal::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 10px;
+            margin-block: 10px;
+        }
+
+        .modal::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, var(--accent-primary), var(--accent-secondary));
+            border-radius: 10px;
+            border: 2px solid var(--bg-main);
+        }
+
+        .modal::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, var(--accent-secondary), var(--accent-primary));
         }
 
         .modal-overlay.active .modal {
@@ -1343,13 +1367,15 @@
                 <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Search for a name..." data-i18n-placeholder="searchPlaceholder" class="form-control" style="padding-right:35px; text-align: right;">
                 <i class="fas fa-search" style="position: absolute; right: 12px; top: 15px; color: var(--text-secondary);"></i>
             </div>
-            <div style="position: relative;">
-                <select id="sortSelect" onchange="applySort(this.value)" class="form-control" style="padding-right: 35px; width: 140px; font-size: 13px; appearance: none; cursor: pointer; border-color: var(--accent-primary);">
-                    <option value="date-desc" data-i18n="sortLatest">🕒 Recently Modified</option>
-                    <option value="amount-desc" data-i18n="sortHighest">💰 Highest Balance</option>
-                    <option value="amount-asc" data-i18n="sortLowest">📉 Lowest Balance</option>
+            <div style="position: relative; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer;" onmouseover="this.querySelector('select').style.borderColor='var(--accent-primary)'; this.querySelector('select').style.boxShadow='0 8px 25px var(--accent-glow)'; this.querySelector('.sort-icon-wrapper').style.background='var(--accent-primary)'; this.querySelector('.sort-icon-wrapper i').style.color='var(--bg-main)'; this.querySelector('.sort-icon-wrapper i').style.transform='rotate(180deg)'; this.style.transform='translateY(-3px)'" onmouseout="this.querySelector('select').style.borderColor='rgba(255, 255, 255, 0.1)'; this.querySelector('select').style.boxShadow='0 8px 20px rgba(0,0,0,0.2)'; this.querySelector('.sort-icon-wrapper').style.background='rgba(255, 255, 255, 0.03)'; this.querySelector('.sort-icon-wrapper i').style.color='var(--accent-primary)'; this.querySelector('.sort-icon-wrapper i').style.transform='rotate(0deg)'; this.style.transform='translateY(0)'">
+                <select id="sortSelect" onchange="applySort(this.value)" class="form-control" style="padding-right: 48px; padding-left: 15px; width: 175px; font-size: 14px; font-weight: 700; font-family: inherit; appearance: none; cursor: pointer; border: 2px solid rgba(255, 255, 255, 0.1); background: var(--bg-card); color: var(--text-primary); border-radius: 14px; transition: all 0.3s; box-shadow: 0 8px 20px rgba(0,0,0,0.2);">
+                    <option value="date-desc" data-i18n="sortLatest" style="background: #1a1a20; color: #fff; padding: 15px;">🕒 الأحدث</option>
+                    <option value="amount-desc" data-i18n="sortHighest" style="background: #1a1a20; color: #fff; padding: 15px;">💰 الأعلى رصيداً</option>
+                    <option value="amount-asc" data-i18n="sortLowest" style="background: #1a1a20; color: #fff; padding: 15px;">📉 الأقل رصيداً</option>
                 </select>
-                <i class="fas fa-filter" style="position: absolute; right: 12px; top: 15px; color: var(--accent-primary); pointer-events: none;"></i>
+                <div class="sort-icon-wrapper" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); pointer-events: none; width: 34px; height: 34px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; display: flex; justify-content: center; align-items: center; transition: all 0.4s ease;">
+                    <i class="fas fa-sliders-h" style="color: var(--accent-primary); font-size: 15px; transition: all 0.4s ease;"></i>
+                </div>
             </div>
         </div>
     </div>
@@ -1642,141 +1668,97 @@
         </div>
     </div>
 
-    <!-- Hidden PDF Receipt Template - Ultra Professional Version -->
+    <!-- Hidden PDF Receipt Template - Minimalist Clean Version -->
     <div id="receipt-container" style="position: absolute; left: -9999px; top: -9999px;">
-        <div id="receipt" style="padding: 0; background: #fff; color: #1a1a1a; direction: rtl; font-family: &#39;Tajawal&#39;, &#39;Segoe UI&#39;, Arial, sans-serif; width: 800px; border: 1px solid #ddd; line-height: 1.6; text-rendering: optimizeLegibility;">
-
-            <!-- Top Accent Bar -->
-            <div style="height: 12px; background: linear-gradient(90deg, #ccac00, #ffeb3b, #ccac00);"></div>
-
-            <div style="padding: 40px;">
-                <!-- Header Section -->
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; border-bottom: 1px solid #eee; padding-bottom: 30px;">
-                    <div class="align-start" style="text-align: right;">
-                        <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px;">
-                            <img id="r-logo" src="123.png" crossOrigin="anonymous" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid #ccac00;">
-                            <div>
-                                <h1 style="margin: 0; font-size: 28px; font-weight: 900; color: #000; letter-spacing: 1px;">
-                                    DebtManager</h1>
-                                <p id="r-subtitle" style="margin: 0; font-size: 14px; color: #666; font-weight: 700;">نظام الإدارة
-                                    المالية المتقدمة</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="align-end" style="text-align: left; direction: ltr;">
-                        <h2 id="r-statement" style="margin: 0 0 10px 0; font-size: 22px; font-weight: 800; color: #ccac00; text-transform: uppercase;">
-                            Statement / كشف حساب</h2>
-                        <div style="font-size: 12px; color: #888; font-weight: 600;">
-                            REFERENCE: #<span id="r-ref" style="font-family: &#39;Outfit&#39;; color: #000;"></span><br>
-                            DATE: <span id="r-date" style="color: #000;"></span> | TIME: <span id="r-time" style="font-family: &#39;Outfit&#39;; color: #000;"></span>
-                        </div>
-                        </div>
+        <div id="receipt" style="padding: 60px; background: #ffffff; color: #111827; direction: rtl; font-family: 'Tajawal', 'Outfit', sans-serif; width: 850px; line-height: 1.6; text-rendering: optimizeLegibility;">
+            
+            <!-- Header -->
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #e5e7eb; padding-bottom: 30px; margin-bottom: 40px;">
+                <div style="display: flex; align-items: center; gap: 20px;">
+                    <img id="r-logo" src="123.png" crossOrigin="anonymous" style="width: 85px; height: 85px; border-radius: 16px; object-fit: cover; border: 1px solid #e5e7eb;">
+                    <div>
+                        <h1 style="margin: 0; font-size: 32px; font-weight: 900; color: #111827; letter-spacing: -0.5px;">DebtManager</h1>
+                        <p id="r-subtitle" style="margin: 5px 0 0 0; font-size: 15px; color: #6b7280; font-weight: 600;">كشف حساب مالي مُفصل</p>
                     </div>
                 </div>
-
-                <!-- Entities Info -->
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 40px;">
-                    <div style="padding: 20px; border: 1px solid #eee; border-radius: 12px; background: #fafafa;">
-                        <p id="r-to-customer" style="margin: 0 0 10px 0; font-size: 11px; font-weight: 800; color: #ccac00; text-transform: uppercase;">
-                            إلى السيد / السادة | TO CUSTOMER:</p>
-                        <h3 style="margin: 0; font-size: 22px; font-weight: 800; color: #000;" id="r-name">---</h3>
-                        <div style="margin-top: 10px; font-size: 14px; color: #555;">
-                            <i class="fas fa-phone"></i> <span id="r-phone-label">رقم الهاتف:</span> <span id="r-phone" style="font-family: &#39;Outfit&#39;; font-weight: 700;">---</span>
-                        </div>
-                    </div>
-                    <div style="padding: 20px; border: 1px solid #eee; border-radius: 12px; display: flex; flex-direction: column; justify-content: center;">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px dashed #ddd; padding-bottom: 8px;">
-                            <span id="r-account-type" style="font-size: 13px; color: #666;">نوع الحساب:</span>
-                            <span style="font-size: 14px; font-weight: 800; color: #000;" id="r-type">---</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between;">
-                            <span id="r-account-status" style="font-size: 13px; color: #666;">حالة الحساب:</span>
-                            <span id="r-active" style="font-size: 13px; font-weight: 700; color: #28a745;">نشط ومعتمد</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Financial Summary Card -->
-                <div style="background: #000; border-radius: 20px; padding: 40px; margin-bottom: 45px; position: relative; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.1);">
-                    <!-- Decorative element -->
-                    <div style="position: absolute; top: -50px; left: -50px; width: 150px; height: 150px; background: rgba(204, 172, 0, 0.1); border-radius: 50%;">
-                    </div>
-
-                    <div style="position: relative; z-index: 1; display: flex; justify-content: space-between; align-items: center;">
-                        <div class="align-start" style="text-align: right;">
-                            <h4 id="r-total-balance" style="margin: 0; color: #ccac00; font-size: 14px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px;">
-                                إجمالي الرصيد المستحق للهذا الحساب</h4>
-                            <div style="font-size: 56px; font-weight: 900; color: #fff; font-family: &#39;Outfit&#39;;">
-                                <span id="r-amount">0.00</span> <small id="r-currency" style="font-size: 20px; font-weight: 400; color: #888;">EGP</small>
-                            </div>
-                        </div>
-                        <div class="align-end" style="text-align: left;">
-                             <img id="r-qr" src="" crossOrigin="anonymous" width="110" height="110" style="border: 5px solid #fff; border-radius: 12px; background: #fff;">
-                        </div>
-                    </div>
-                    <div style="margin-top: 25px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;">
-                        <p style="margin: 0; font-size: 15px; color: #aaa;">
-                            <span id="r-amount-text" style="color: #fff; font-weight: 800;">---</span>
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Detailed Transactions Header -->
-                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
-                    <div style="width: 5px; height: 30px; background: #ccac00; border-radius: 2px;"></div>
-                    <h3 id="r-history-title" style="margin: 0; font-size: 18px; font-weight: 800; color: #000;">سجل الحركات المالية الموثقة
-                    </h3>
-                </div>
-
-                <!-- Transaction Table -->
-                <table style="width: 100%; border-collapse: separate; border-spacing: 0; margin-bottom: 40px; border: 1px solid #eee; border-radius: 12px; overflow: hidden;">
-                    <thead>
-                        <tr style="background: #f8f9fa;">
-                            <th id="r-th-date" class="align-start" style="padding: 15px; text-align: right; font-size: 12px; color: #666; font-weight: 800; border-bottom: 2px solid #eee;">
-                                التاريخ</th>
-                            <th id="r-th-type" class="align-start" style="padding: 15px; text-align: right; font-size: 12px; color: #666; font-weight: 800; border-bottom: 2px solid #eee;">
-                                النوع</th>
-                            <th id="r-th-notes" class="align-start" style="padding: 15px; text-align: right; font-size: 12px; color: #666; font-weight: 800; border-bottom: 2px solid #eee;">
-                                البيان التفصيلي</th>
-                            <th id="r-th-amount" style="padding: 15px; text-align: center; font-size: 12px; color: #666; font-weight: 800; border-bottom: 2px solid #eee;">
-                                القيمة</th>
-                        </tr>
-                    </thead>
-                    <tbody id="r-history-body">
-                        <!-- Dynamic Rows -->
-                    </tbody>
-                </table>
-
-                <!-- Footnote Section -->
-                <div style="display: grid; grid-template-columns: 1fr 200px; gap: 40px; align-items: flex-start; margin-top: 30px;">
-                    <div style="background: #fdfdfd; padding: 20px; border-radius: 12px; border: 1px dashed #ddd;">
-                        <h5 id="r-notes-title" style="margin: 0 0 10px 0; font-size: 13px; color: #333; font-weight: 800;">ملاحظات وشروط:
-                        </h5>
-                        <p id="r-notes" style="margin: 0; font-size: 13px; color: #666; line-height: 1.6;">
-                            يرجى مراجعة الحساب في غضون 48 ساعة من تاريخ الاستلام في حال وجود أي استفسار.
-                        </p>
-                    </div>
-                    <div style="text-align: center; display: flex; flex-direction: column; gap: 15px;">
-                        <a id="r-wa-link" href="file:///C:/Users/MASTER/Documents/konnash/index.html#" style="background: #25D366; color: #fff; padding: 12px; border-radius: 12px; text-decoration: none; font-weight: 800; font-size: 14px; display: block; box-shadow: 0 4px 15px rgba(37, 211, 102, 0.2);">
-                            <i class="fab fa-whatsapp"></i> ارسال عبر الواتس
-                        </a>
-                        <div style="padding-top: 20px; border-top: 1px solid #eee; font-size: 11px; color: #999;">
-                            توقيع المحاسب إلكترونياً
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Brand Footer -->
-                <div style="margin-top: 60px; text-align: center; border-top: 1px solid #eee; padding-top: 20px;">
-                    <p style="margin: 0; font-size: 11px; color: #bbb; font-weight: 400; letter-spacing: 0.5px;">
-                        تم إنشاء هذا التقرير آلياً بواسطة نظام <span style="color: #ccac00; font-weight: 800;">DebtManager PRO</span> لعام 2026.
-                    </p>
-                    <p style="margin: 5px 0 0 0; font-size: 10px; color: #ccc;">
-                        CONFIDENTIAL &amp; SECURE FINANCIAL STATEMENT
-                    </p>
+                <div style="text-align: left; direction: ltr;">
+                    <h2 id="r-statement" style="margin: 0 0 15px 0; font-size: 28px; font-weight: 800; color: #111827; text-transform: uppercase; letter-spacing: 2px;">Statement</h2>
+                    <table style="width: 100%; font-size: 14px; color: #4b5563; border-collapse: collapse;">
+                        <tr><td style="padding: 3px 0; text-align: right; padding-right: 20px; font-weight: 600;">Date:</td><td id="r-date" style="padding: 3px 0; font-weight: 800; color: #111827;">--</td></tr>
+                        <tr><td style="padding: 3px 0; text-align: right; padding-right: 20px; font-weight: 600;">Time:</td><td id="r-time" style="padding: 3px 0; font-weight: 800; color: #111827;">--</td></tr>
+                        <tr><td style="padding: 3px 0; text-align: right; padding-right: 20px; font-weight: 600;">Ref #:</td><td id="r-ref" style="padding: 3px 0; font-weight: 800; color: #111827;">--</td></tr>
+                    </table>
                 </div>
             </div>
+
+            <!-- Client & Summary Section -->
+            <div style="display: flex; gap: 30px; margin-bottom: 50px;">
+                <!-- Client Info -->
+                <div style="flex: 1; padding: 30px; background: #f9fafb; border-radius: 16px; border: 1px solid #f3f4f6;">
+                    <h3 style="margin: 0 0 15px 0; font-size: 13px; color: #6b7280; font-weight: 800; letter-spacing: 1px;">إلى السيد / السادة</h3>
+                    <h2 id="r-name" style="margin: 0 0 20px 0; font-size: 24px; font-weight: 900; color: #111827;">---</h2>
+                    <div style="font-size: 14px; color: #4b5563; display: flex; flex-direction: column; gap: 8px;">
+                        <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #e5e7eb; padding-bottom: 8px;"><span id="r-phone-label" style="font-weight: 700; color: #6b7280;">رقم الهاتف:</span> <span id="r-phone" dir="ltr" style="font-weight: 800; color: #111827;">---</span></div>
+                        <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #e5e7eb; padding-bottom: 8px;"><span id="r-account-type" style="font-weight: 700; color: #6b7280;">نوع الحساب:</span> <span id="r-type" style="font-weight: 800; color: #111827;">---</span></div>
+                        <div style="display: flex; justify-content: space-between;"><span id="r-account-status" style="font-weight: 700; color: #6b7280;">حالة الحساب:</span> <span id="r-active" style="color: #059669; font-weight: 800;">نشط ومعتمد</span></div>
+                    </div>
+                </div>
+
+                <!-- Amount Due -->
+                <div style="flex: 1; padding: 30px; background: #ffffff; border-radius: 16px; border: 2px solid #111827; display: flex; flex-direction: column; justify-content: center; position: relative;">
+                    <h3 id="r-total-balance" style="margin: 0 0 10px 0; font-size: 15px; color: #4b5563; font-weight: 800;">إجمالي الرصيد المستحق</h3>
+                    <div style="display: flex; align-items: baseline; gap: 8px; margin-bottom: 15px;">
+                        <span id="r-amount" style="font-size: 48px; font-weight: 900; color: #111827; font-family: 'Outfit', sans-serif; letter-spacing: -1px;">0.00</span>
+                        <span id="r-currency" style="font-size: 20px; font-weight: 800; color: #6b7280;">EGP</span>
+                    </div>
+                    <div style="padding-top: 15px; border-top: 1px dashed #e5e7eb;">
+                        <span id="r-amount-text" style="font-size: 15px; color: #111827; font-weight: 700;">---</span>
+                    </div>
+                    <!-- QR Code positioned elegantly -->
+                    <img id="r-qr" src="" crossOrigin="anonymous" style="position: absolute; left: 30px; top: 30px; width: 75px; height: 75px; border-radius: 8px; border: 1px solid #e5e7eb;">
+                </div>
+            </div>
+
+            <!-- Transaction Table -->
+            <div style="margin-bottom: 60px;">
+                <h3 id="r-history-title" style="margin: 0 0 20px 0; font-size: 20px; font-weight: 900; color: #111827; border-right: 4px solid #111827; padding-right: 15px;">سجل الحركات المالية الموثقة</h3>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="border-bottom: 3px solid #111827;">
+                            <th id="r-th-date" class="align-start" style="padding: 15px 10px; text-align: right; font-size: 14px; color: #111827; font-weight: 900;">التاريخ</th>
+                            <th id="r-th-type" class="align-start" style="padding: 15px 10px; text-align: right; font-size: 14px; color: #111827; font-weight: 900;">النوع</th>
+                            <th id="r-th-notes" class="align-start" style="padding: 15px 10px; text-align: right; font-size: 14px; color: #111827; font-weight: 900;">البيان التفصيلي</th>
+                            <th id="r-th-amount" style="padding: 15px 10px; text-align: center; font-size: 14px; color: #111827; font-weight: 900; width: 150px;">القيمة</th>
+                        </tr>
+                    </thead>
+                    <tbody id="r-history-body" style="background: #ffffff;">
+                        <!-- Dynamic Rows will be inserted here. App.js handles alternating styles -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Footer Section -->
+            <div style="display: flex; justify-content: space-between; align-items: flex-end; padding-top: 40px; border-top: 2px solid #e5e7eb;">
+                <div style="flex: 1;">
+                    <h4 id="r-notes-title" style="margin: 0 0 10px 0; font-size: 16px; color: #111827; font-weight: 900;">ملاحظات وشروط:</h4>
+                    <p id="r-notes" style="margin: 0; font-size: 14px; color: #4b5563; max-width: 400px; line-height: 1.8; font-weight: 600;">
+                        يرجى مراجعة الحساب في غضون 48 ساعة من تاريخ الاستلام في حال وجود أي استفسار. هذا الكشف معتمد ولاغي لما قبله.
+                    </p>
+                    <a id="r-wa-link" href="#" style="display: none;"></a>
+                </div>
+                <div style="text-align: center; width: 250px;">
+                    <div style="height: 60px;"></div> <!-- Space for signature -->
+                    <div style="border-top: 2px solid #111827; padding-top: 15px; font-size: 16px; color: #111827; font-weight: 900;">
+                        توقيع واعتماد المحاسب / Signature
+                    </div>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 60px; font-size: 12px; color: #9ca3af; font-weight: 600; letter-spacing: 1px;">
+                Generated Securely by DebtManager PRO • Confidential Statement
+            </div>
         </div>
+    </div>
     
 
     <script type="text/javascript">
@@ -2208,8 +2190,16 @@
                 history: [{ date, adjustment: amount, notes: notes || '', isInitial: true }]
             };
 
-            // Push to RTDB — this instantly triggers onValue locally so we don't need manual unshift
-            pushDebtToRTDB(newDebt);
+            // Push to RTDB
+            const newId = pushDebtToRTDB(newDebt);
+            
+            // Optimistic UI update
+            if (newId) {
+                newDebt.id = newId;
+                if (!debts.some(d => d.id === newId)) {
+                    debts.push(newDebt);
+                }
+            }
 
             closeModal('addModal');
             document.getElementById('pName').value = '';
@@ -2386,6 +2376,12 @@
             const t = translations[currentLang];
             if (confirm(t.confirmDelete || 'Are you sure?')) {
                 removeDebtFromRTDB(id);
+                
+                // Optimistic UI update
+                debts = debts.filter(d => d.id !== id);
+                renderTable();
+                
+                showToast(currentLang === 'ar' ? 'تم الحذف بنجاح 🗑️' : '🗑️ Deleted successfully', 'success');
             }
         }
 
@@ -2503,6 +2499,25 @@
             document.getElementById('r-notes-title').innerText = t.pdfNotesTitle;
             document.getElementById('r-currency').innerText = t.currency;
 
+            // Translate Table Headers Dynamically
+            const thTranslations = {
+                ar: { date: "التاريخ", type: "النوع", notes: "البيان التفصيلي", amount: "القيمة" },
+                en: { date: "Date", type: "Type", notes: "Description", amount: "Amount" },
+                fr: { date: "Date", type: "Type", notes: "Description", amount: "Montant" },
+                de: { date: "Datum", type: "Typ", notes: "Beschreibung", amount: "Betrag" },
+                nl: { date: "Datum", type: "Type", notes: "Beschrijving", amount: "Bedrag" },
+                es: { date: "Fecha", type: "Tipo", notes: "Descripción", amount: "Monto" },
+                it: { date: "Data", type: "Tipo", notes: "Descrizione", amount: "Importo" },
+                pt: { date: "Data", type: "Tipo", notes: "Descrição", amount: "Valor" },
+                br: { date: "Data", type: "Tipo", notes: "Descrição", amount: "Valor" },
+                tr: { date: "Tarih", type: "Tip", notes: "Açıklama", amount: "Miktar" }
+            };
+            const thLang = thTranslations[currentLang] || thTranslations['en'];
+            document.getElementById('r-th-date').innerText = thLang.date;
+            document.getElementById('r-th-type').innerText = thLang.type;
+            document.getElementById('r-th-notes').innerText = thLang.notes;
+            document.getElementById('r-th-amount').innerText = thLang.amount;
+
             const now = new Date();
             document.getElementById('r-name').innerText = targetDebt.name;
             document.getElementById('r-date').innerText = targetDebt.date ? targetDebt.date.split('-').reverse().join('/') : '---';
@@ -2540,24 +2555,61 @@
 
             [...targetDebt.history].reverse().forEach((h, index) => {
                 const tr = document.createElement('tr');
-                tr.style.backgroundColor = index % 2 === 0 ? '#ffffff' : '#fcfcfc';
+                tr.style.backgroundColor = index % 2 === 0 ? '#ffffff' : '#f8fafc';
+                tr.style.transition = 'background-color 0.2s';
 
-                const typeText = h.isInitial ? t.openingBalance : (h.adjustment > 0 ? t.increaseVal : t.decreaseVal);
-                const typeColor = h.isInitial ? '#666' : (h.adjustment > 0 ? '#28a745' : '#dc3545');
-                const typeBg = h.isInitial ? '#f0f0f0' : (h.adjustment > 0 ? '#e8f5e9' : '#ffebee');
+                const isInitial = h.isInitial;
+                const isInvoice = h.adjustment > 0;
+
+                let typeText = '';
+                let typeColor = '';
+                let typeBg = '';
+                let amountColor = '';
+                let amountSign = '';
+
+                if (isInitial) {
+                    typeText = t.openingBalance || 'رصيد افتتاحي';
+                    typeColor = '#475569';
+                    typeBg = '#f1f5f9';
+                    amountColor = '#475569';
+                    amountSign = '+';
+                } else if (isInvoice) {
+                    typeText = t.invoiceAdded || t.increaseVal || 'زيادة (فاتورة)';
+                    typeColor = '#df2c2c';
+                    typeBg = '#fef2f2';
+                    amountColor = '#df2c2c';
+                    amountSign = '+';
+                } else {
+                    typeText = t.paymentAdded || t.decreaseVal || 'خصم (دفعة)';
+                    typeColor = '#10b981';
+                    typeBg = '#ecfdf5';
+                    amountColor = '#10b981';
+                    amountSign = '-';
+                }
 
                 let displayNotes = h.notes;
                 if (!displayNotes || displayNotes === 'تسجيل الحساب أول مرة' || displayNotes === 'رصيد افتتاحي') {
-                    displayNotes = h.isInitial ? t.openingBalance : '---';
+                    displayNotes = isInitial ? (t.openingBalance || 'رصيد افتتاحي') : '---';
                 }
 
+                const formattedDate = h.date ? h.date.split('-').reverse().join('/') : '---';
+                const formattedAmount = Math.abs(h.adjustment).toLocaleString();
+
                 tr.innerHTML = `
-                <td class="align-start" style="padding: 15px; font-size: 13px; font-family: 'Outfit'; border-bottom: 1px solid #eee;">${h.date ? h.date.split('-').reverse().join('/') : '---'}</td>
-                <td class="align-start" style="padding: 15px; font-size: 12px; font-weight:bold; border-bottom: 1px solid #eee;">
-                    <span style="background:${typeBg}; color:${typeColor}; padding:5px 12px; border-radius:8px; display:inline-block; font-size:11px;">${typeText}</span>
+                <td class="align-start" style="padding: 14px 18px; font-size: 13px; font-family: 'Outfit', sans-serif; color: #64748b; font-weight: 500; border-bottom: 1px solid #e2e8f0;">
+                    ${formattedDate}
                 </td>
-                <td class="align-start" style="padding: 15px; font-size: 13px; color:#444; border-bottom: 1px solid #eee; font-weight:500;">${displayNotes}</td>
-                <td style="padding: 15px; text-align: center; font-weight:800; font-family: 'Outfit'; font-size: 16px; color:#000; border-bottom: 1px solid #eee;">${Math.abs(h.adjustment).toLocaleString()}</td>
+                <td class="align-start" style="padding: 14px 18px; border-bottom: 1px solid #e2e8f0;">
+                    <span style="background: ${typeBg}; color: ${typeColor}; padding: 4px 12px; border-radius: 20px; display: inline-flex; align-items: center; font-size: 11px; font-weight: 800; border: 1px solid ${typeColor}15; letter-spacing: 0.2px;">
+                        ${typeText}
+                    </span>
+                </td>
+                <td class="align-start" style="padding: 14px 18px; font-size: 13px; color: #334155; border-bottom: 1px solid #e2e8f0; font-weight: 600; max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                    ${displayNotes}
+                </td>
+                <td style="padding: 14px 18px; text-align: center; font-weight: 800; font-family: 'Outfit', sans-serif; font-size: 15px; color: ${amountColor}; border-bottom: 1px solid #e2e8f0;">
+                    <span style="font-size: 12px; margin-left: 2px; font-weight: 600;">${amountSign}</span>${formattedAmount}
+                </td>
             `;
                 historyBody.appendChild(tr);
             });
