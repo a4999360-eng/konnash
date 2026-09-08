@@ -1,0 +1,33 @@
+{
+  "name": "إدارة الديون | ديونك",
+  "short_name": "ديونك",
+  "description": "تطبيق متطور لإدارة ومتابعة الديون والشركاء وتصدير كشوف الحسابات والإيصالات",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0a0a0c",
+  "theme_color": "#FFD700",
+  "lang": "ar",
+  "dir": "rtl",
+  "icons": [
+    {
+      "src": "123.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "123.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "123.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
